@@ -46,6 +46,24 @@ app.delete("/tasks/:id", async (req, res) => {
   await Task.findByIdAndDelete(req.params.id);
   res.send({ message: "Task deleted successfully!" });
 });
+// Get task by ID
+app.get("/tasks/:id", async (req, res) => {
+  const task = await Task.findById(req.params.id);
+  if (!task) {
+    return res.status(404).send({ error: "Task not found" });
+  }
+  res.send(task);
+});
+
+// Update task
+app.put("/tasks/:id", async (req, res) => {
+  try {
+    const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updatedTask);
+  } catch (error) {
+    res.status(500).send({ message: "Error updating task" });
+  }
+});
 
 // Start Server
 app.listen(5000, () => console.log("Server running on port 5000"));

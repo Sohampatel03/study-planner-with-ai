@@ -7,6 +7,7 @@ import Calendar from './components/Calendar';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import AddTask from './pages/AddTask';
+import TaskDetails from './pages/TaskDetails';
 
 function App() {
   const [tasks, setTasks] = useState({
@@ -34,6 +35,8 @@ function App() {
             </div>
           } />
           <Route path="/add-task" element={<AddTask />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/task/:id" element={<TaskDetails />} />
         </Routes>
       </div>
     </BrowserRouter>

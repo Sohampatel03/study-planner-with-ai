@@ -6,7 +6,7 @@ const TaskProgress = ({ completed, remaining }) => {
   const remainingPercentage = 100 - completedPercentage;
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-1/3 w-80">
+    <div className="bg-gray-800 p-6 rounded-lg mt-5  mx-auto shadow-lg w-3/4 h[screen]">
       <h2 className="text-lg font-bold text-white mb-4">Task Progress</h2>
 
       <div className="flex justify-center space-x-8">
