@@ -1,12 +1,15 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
-const Header = ({ onAddTask }) => {
+const Header = () => {
+  const navigate = useNavigate();
+
   return (
-    <header className="bg-gray-900 text-white p-4 flex justify-between items-center">
+    <header className="bg-gray-800 p-4 flex justify-between items-center">
       <h1 className="text-2xl font-bold">Task Manager</h1>
-      <button
-        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-        onClick={onAddTask}
+      <button 
+        onClick={() => navigate("/add-task")} 
+        className="bg-blue-500 px-4 py-2 rounded-md hover:bg-blue-600"
       >
         + Add Task
       </button>
