@@ -80,31 +80,45 @@ app.put("/tasks/:id", async (req, res) => {
 // AI Suggestion API Route
 app.post("/ai-suggest", async (req, res) => {
   try {
-    console.log("Received request:", req.body);
-
-    const prompt = `tell me about you`;
+    const { title, description, duration } = req.body;
+    const prompt = `Improve this task description and suggest an ideal duration:\nTitle: ${title}\nDescription: ${description}\nDuration: ${duration} minutes.`;
 
     const response = await cohere.generate({
-      model:"command",
+      model: "command",
       prompt: prompt,
-      max_tokens: 50,
-      temperature: 0.8,
+      max_tokens: 100,
+      temperature: 0.7,
     });
-    console.log(response.body,"reposne")
-    console.log("Full API response:", JSON.stringify(response, null, 2));
+
     const aiText = response.body?.generations?.[0]?.text || "No response received.";
-
-    console.log("Extracted AI response:", aiText)
-
-   
-
-    // ✅ Send only the relevant data (response.body contains the actual response)
-    res.json(response.body);
+    
+    res.json({ title, improvedDescription: aiText, suggestedDuration: duration });
   } catch (error) {
-    console.error("Error fetching AI suggestion:", error.response?.data || error);
+    console.error("Error fetching AI suggestion:", error);
     res.status(500).json({ message: "Error fetching AI suggestion" });
   }
 });
+// Save Task API (Accept or Reject AI Suggestion)
+app.post("/save-task", async (req, res) => {
+  try {
+    const { title, description, date, duration, isAiSuggested } = req.body;
+
+    const task = new Task({
+      title,
+      description,
+      date,
+      duration,
+      isAiSuggested, // true if AI suggestion is accepted, false if rejected
+    });
+
+    await task.save();
+    res.status(201).json({ message: "Task saved successfully!", task });
+  } catch (error) {
+    console.error("Error saving task:", error);
+    res.status(500).json({ message: "Error saving task" });
+  }
+});
+
 
 // Start Server
 app.listen(5000, () => console.log("Server running on port 5000"));

@@ -9,6 +9,7 @@ import { useState } from "react";
 import AddTask from './pages/AddTask';
 import TaskDetails from './pages/TaskDetails';
 import AISearchBar from './components/AISearchBar';
+import AiSuggestedTask from './pages/AiSuggestedTask';
 
 function App() {
   const [tasks, setTasks] = useState({
@@ -25,7 +26,7 @@ function App() {
        <div className="min-h-screen bg-gray-900 text-white p-6">
         {/* Header Section */}
         <Header onAddTask={handleAddTask} />
-        <AISearchBar />
+        {/* <AISearchBar /> */}
 
         {/* Main Layout */}
         <Routes>
@@ -39,6 +40,7 @@ function App() {
           <Route path="/add-task" element={<AddTask />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/task/:id" element={<TaskDetails />} />
+        <Route path="/ai-suggested-task" element={<AiSuggestedTask/>} />
         </Routes>
       </div>
     </BrowserRouter>

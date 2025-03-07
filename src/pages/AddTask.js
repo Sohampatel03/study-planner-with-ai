@@ -1,20 +1,23 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // For navigation
 
 function AddTask() {
   const [task, setTask] = useState({ title: "", description: "", date: "", duration: "" });
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:5000/tasks", {
+    const response = await fetch("http://localhost:5000/ai-suggest", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(task),
     });
 
     if (response.ok) {
-      alert("Task added successfully!");
+      const aiSuggestedTask = await response.json();
+      navigate("/ai-suggested-task", { state: aiSuggestedTask });
     } else {
-      alert("Error adding task.");
+      alert("Error getting AI suggestions.");
     }
   };
 
@@ -33,7 +36,7 @@ function AddTask() {
           value={task.title}
           onChange={(e) => setTask({ ...task, title: e.target.value })}
           required
-          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
         />
       </div>
 
@@ -44,7 +47,7 @@ function AddTask() {
           value={task.description}
           onChange={(e) => setTask({ ...task, description: e.target.value })}
           required
-          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none h-24"
+          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400 resize-none h-24"
         />
       </div>
 
@@ -55,7 +58,7 @@ function AddTask() {
           value={task.date}
           onChange={(e) => setTask({ ...task, date: e.target.value })}
           required
-          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
         />
       </div>
 
@@ -67,15 +70,15 @@ function AddTask() {
           value={task.duration}
           onChange={(e) => setTask({ ...task, duration: e.target.value })}
           required
-          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
         />
       </div>
 
       <button 
         type="submit" 
-        className="w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition duration-300"
+        className="w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 rounded-md"
       >
-        Add Task
+        Get AI Suggestions
       </button>
     </form>
   );
