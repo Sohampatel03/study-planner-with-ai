@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import AddTask from './pages/AddTask';
 import TaskDetails from './pages/TaskDetails';
+import AISearchBar from './components/AISearchBar';
 
 function App() {
   const [tasks, setTasks] = useState({
@@ -24,6 +25,7 @@ function App() {
        <div className="min-h-screen bg-gray-900 text-white p-6">
         {/* Header Section */}
         <Header onAddTask={handleAddTask} />
+        <AISearchBar />
 
         {/* Main Layout */}
         <Routes>
