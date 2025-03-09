@@ -69,6 +69,7 @@ const TaskProgress = ({ completed, remaining }) => {
         <h3>Remaining Tasks: {remaining}</h3>
         <h3>Completed Tasks: {completed}</h3>
       </div>
+      <h1 className="text-lg font-bold text-white mb-4">Badges</h1>
     </div>
   );
 };

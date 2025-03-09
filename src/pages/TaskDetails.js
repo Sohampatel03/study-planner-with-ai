@@ -48,7 +48,7 @@ function TaskDetails() {
         isEditing ? (
           <form onSubmit={handleUpdate}>
             <input type="text" name="title" value={formData.title} onChange={handleChange} className="p-2 w-full mb-2 bg-gray-700 text-white" />
-            <textarea name="description" value={formData.description} onChange={handleChange} className="p-2 w-full mb-2 bg-gray-700 text-white"></textarea>
+            <textarea name="description" value={formData.description} onChange={handleChange} className="p-2 w-full h-[200px] mb-2 bg-gray-700 text-white"></textarea>
             <input type="date" name="date" value={formData.date} onChange={handleChange} className="p-2 w-full mb-2 bg-gray-700 text-white" />
             <button type="submit" className="bg-blue-500 px-4 py-2 rounded">Save Changes</button>
           </form>

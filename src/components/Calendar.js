@@ -27,6 +27,7 @@ function Calendar() {
 
   const goToPreviousMonth = () => {
     setCurrentMonth((prevMonth) => (prevMonth === 0 ? 11 : prevMonth - 1));
+    console.log("Cohere API Key:", process.env.COHERE_API_KEY);
     if (currentMonth === 0) setCurrentYear((prevYear) => prevYear - 1);
   };
 
@@ -81,7 +82,7 @@ function Calendar() {
               .map((task) => (
                 <li key={task._id} className="bg-gray-600 p-2 rounded-md mb-2">
                   <Link to={`/task/${task._id}`} className="text-blue-400 hover:underline">
-                    <strong>{task.title}</strong> - {task.description}
+                    <strong>{task.title}</strong>
                   </Link>
                 </li>
               ))

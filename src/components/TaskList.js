@@ -24,7 +24,7 @@ function TaskList() {
               className="border border-gray-600 p-4 my-2 rounded-md  transition"
             >
               <h3 className="text-lg font-semibold text-white-800">Title: {task.title}</h3>
-              <p className="text-white-800">Description: {task.description}</p>
+              {/* <p className="text-white-800">Description: {task.description}</p> */}
               <p className="text-sm text-yellow-400">
                 <strong>Status:</strong> {task.status}
               </p>
