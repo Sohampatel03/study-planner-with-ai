@@ -6,26 +6,26 @@ function TaskDetails() {
   const navigate = useNavigate();
   const [task, setTask] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ title: "", description: "", date: "" });
+  const [formData, setFormData] = useState({ title: "", description: "", date: ""});
 
   useEffect(() => {
     fetch(`http://localhost:5000/tasks/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setTask(data);
-        setFormData({ title: data.title, description: data.description, date: data.date });
+        setFormData({ title: data.title, description: data.description, date: data.date});
       });
   }, [id]);
+
   const handleDelete = () => {
     fetch(`http://localhost:5000/tasks/${id}`, {
       method: "DELETE",
     })
-      .then(() => navigate("/")) // Redirect to home after delete
+      .then(() => navigate("/"))
       .catch((err) => console.error("Error deleting task:", err));
   };
 
   const handleEditClick = () => setIsEditing(true);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -35,13 +35,12 @@ function TaskDetails() {
     await fetch(`http://localhost:5000/tasks/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({ ...formData}), // Ensure only relevant fields are sent
     });
-
+  
     setIsEditing(false);
-    navigate(`/`); // Redirect to homepage after update
+    navigate(`/`);
   };
-
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-[50%] mx-auto mt-5 text-white">
       {task ? (
@@ -58,14 +57,16 @@ function TaskDetails() {
             <p>Description: {task.description}</p>
             <p><strong>Date:</strong> {task.date}</p>
             <div className="flex justify-between items-center mt-4">
-            <button onClick={handleEditClick} className="bg-blue-500 px-4 py-2 rounded mt-3  hover:bg-blue-600">Edit Task</button>
-            <button
-          onClick={handleDelete}
-          className="bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600"
-        >
-          Delete Task
-        </button>
-        </div>
+              <button onClick={handleEditClick} className="bg-blue-500 px-4 py-2 rounded mt-3 hover:bg-blue-600">Edit Task</button>
+              <button onClick={handleDelete} className="bg-red-500 px-4 py-2 rounded mt-3 hover:bg-red-600">Delete Task</button>
+              {/* Start Task Button */}
+              <button
+                onClick={() => navigate(`/timer/${id}`)}
+                className="bg-green-500 px-4 py-2 rounded mt-3 hover:bg-green-600"
+              >
+                Start Task
+              </button>
+            </div>
           </>
         )
       ) : (

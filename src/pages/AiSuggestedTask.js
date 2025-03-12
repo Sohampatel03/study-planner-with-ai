@@ -7,7 +7,7 @@ function AiSuggestedTask() {
 
   // Extract AI-suggested task and original user input
   const { originalTask, aiTask } = location.state || { originalTask: {}, aiTask: {} };
-  console.log(aiTask);
+  console.log({originalTask},"taskoriginal");
   const [task, setTask] = useState(aiTask || {});
 
   // Function to handle Accept (Save AI suggestion)
@@ -30,7 +30,7 @@ function AiSuggestedTask() {
       alert("Task saved with AI-enhanced description!");
       navigate("/"); // Redirect to home page
     } else {
-      alert("Error saving task.");
+      alert("Error saving task.in frontend");
     }
   };
   // Function to handle Reject (Save original user input)

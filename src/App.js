@@ -10,6 +10,8 @@ import AddTask from './pages/AddTask';
 import TaskDetails from './pages/TaskDetails';
 import AISearchBar from './components/AISearchBar';
 import AiSuggestedTask from './pages/AiSuggestedTask';
+import TimerPage from './pages/TimerPage';
+
 
 function App() {
   const [tasks, setTasks] = useState({
@@ -17,7 +19,7 @@ function App() {
     5: ["Workout", "Team Meeting"],
     10: ["Grocery Shopping"],
   });
-
+  
   const handleAddTask = () => {
     console.log("Add Task Clicked!");
   };
@@ -32,7 +34,7 @@ function App() {
         <Routes>
           <Route path="/" element={
             <div className="grid grid-cols-3 gap-4 mt-6">
-              <TaskProgress />
+              <TaskProgress completed={10} remaining={23}/>
               <TaskList   tasks={tasks} />
               <Calendar tasks={tasks} />
             </div>
@@ -40,6 +42,7 @@ function App() {
           <Route path="/add-task" element={<AddTask />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/task/:id" element={<TaskDetails />} />
+          <Route path="/timer/:id" element={<TimerPage />} />
         <Route path="/ai-suggested-task" element={<AiSuggestedTask/>} />
         </Routes>
       </div>
