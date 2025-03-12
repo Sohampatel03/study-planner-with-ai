@@ -1,75 +1,112 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-const TaskProgress = ({ completed, remaining }) => {
-  const totalTasks = completed + remaining;
-  const completedPercentage = totalTasks === 0 ? 0 : (completed / totalTasks) * 100;
-  const remainingPercentage = 100 - completedPercentage;
+const TaskProgress = () => {
+  const [remaining, setRemaining] = useState(0);
+  const [completed, setCompleted] = useState(0);
+
+  useEffect(() => {
+    const fetchProgress = async () => {
+      const response = await fetch("http://localhost:5000/progress");
+      const data = await response.json();
+      setRemaining(data.remaining || 0);
+      setCompleted(data.completed || 0);
+    };
+
+    fetchProgress();
+  }, []);
+
+  // Limits
+  const MAX_REMAINING = 50;
+  const MAX_COMPLETED = 20;
+
+  // Progress calculations based on limits
+  const completedPercentage = Math.min((completed / MAX_COMPLETED) * 100, 100);
+  const remainingPercentage = Math.min((remaining / MAX_REMAINING) * 100, 100);
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg mt-5  mx-auto shadow-lg w-3/4 h[screen]">
-      <h2 className="text-lg font-bold text-white mb-4">Task Progress</h2>
+    <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-3/4 mx-auto mt-5 h[screen]">
+      <h2 className="text-xl font-bold text-white mb-6 text-center">📊 Task Progress</h2>
 
-      <div className="flex justify-center space-x-8">
+      <div className="flex justify-center space-x-12">
         {/* Completed Tasks Progress */}
         <div className="text-center">
-          <div className="relative w-24 h-24">
-            <svg className="w-full h-full" viewBox="0 0 36 36">
-              <path
+          <div className="relative w-28 h-28">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              {/* Background Circle */}
+              <circle
                 className="text-gray-700"
-                strokeWidth="3.8"
+                strokeWidth="3.5"
                 fill="none"
                 stroke="currentColor"
-                d="M18 2.0845 a 15.9155 15.9155 0 1 0 0.00001 31.831"
+                cx="18"
+                cy="18"
+                r="15.9155"
               />
-              <path
-                className="text-green-500"
-                strokeWidth="3.8"
+              {/* Progress Circle */}
+              <circle
+                className="text-green-500 transition-all duration-500 ease-out"
+                strokeWidth="3.5"
                 fill="none"
-                strokeDasharray={`${completedPercentage}, 100`}
+                strokeDasharray="100, 100"
+                strokeDashoffset={`${100 - completedPercentage}`}
                 strokeLinecap="round"
-                d="M18 2.0845 a 15.9155 15.9155 0 1 0 0.00001 31.831"
+                stroke="currentColor"
+                cx="18"
+                cy="18"
+                r="15.9155"
               />
             </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-white font-bold">
+            <span className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">
               {completed}
             </span>
           </div>
-          <p className="text-white mt-2">Completed</p>
+          <p className="text-white mt-2 text-lg font-semibold">Completed</p>
         </div>
 
         {/* Remaining Tasks Progress */}
         <div className="text-center">
-          <div className="relative w-24 h-24">
-            <svg className="w-full h-full" viewBox="0 0 36 36">
-              <path
+          <div className="relative w-28 h-28">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              {/* Background Circle */}
+              <circle
                 className="text-gray-700"
-                strokeWidth="3.8"
+                strokeWidth="3.5"
                 fill="none"
                 stroke="currentColor"
-                d="M18 2.0845 a 15.9155 15.9155 0 1 0 0.00001 31.831"
+                cx="18"
+                cy="18"
+                r="15.9155"
               />
-              <path
-                className="text-yellow-500"
-                strokeWidth="3.8"
+              {/* Progress Circle */}
+              <circle
+                className="text-yellow-500 transition-all duration-500 ease-out"
+                strokeWidth="3.5"
                 fill="none"
-                strokeDasharray={`${remainingPercentage}, 100`}
+                strokeDasharray="100, 100"
+                strokeDashoffset={`${100 - remainingPercentage}`}
                 strokeLinecap="round"
-                d="M18 2.0845 a 15.9155 15.9155 0 1 0 0.00001 31.831"
+                stroke="currentColor"
+                cx="18"
+                cy="18"
+                r="15.9155"
               />
             </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-white font-bold">
+            <span className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">
               {remaining}
             </span>
           </div>
-          <p className="text-white mt-2">Remaining</p>
+          <p className="text-white mt-2 text-lg font-semibold">Remaining</p>
         </div>
       </div>
 
-      <div className="mt-4 text-center text-white">
-        <h3>Remaining Tasks: {remaining}</h3>
-        <h3>Completed Tasks: {completed}</h3>
+      {/* Task Details */}
+      <div className="mt-6 text-center text-white text-lg">
+        <h3>✅ Completed Tasks: <span className="text-green-400">{completed}</span></h3>
+        <h3>⚡ Remaining Tasks: <span className="text-yellow-400">{remaining}</span></h3>
       </div>
-      <h1 className="text-lg font-bold text-white mb-4">Badges</h1>
+
+      {/* Badge Section */}
+      <h1 className="text-lg font-bold text-white mt-6 text-center">🏆 Badges</h1>
     </div>
   );
 };

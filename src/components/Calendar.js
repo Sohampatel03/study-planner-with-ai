@@ -21,9 +21,11 @@ function Calendar() {
   const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
 
   const handleDateClick = (day) => {
-    const selectedFullDate = new Date(currentYear, currentMonth, day).toLocaleDateString("en-CA");
+    const selectedFullDate = new Date(currentYear, currentMonth, day)
+      .toLocaleDateString("en-CA"); // Format as YYYY-MM-DD correctly
     setSelectedDate(selectedFullDate);
   };
+  
 
   const goToPreviousMonth = () => {
     setCurrentMonth((prevMonth) => (prevMonth === 0 ? 11 : prevMonth - 1));
@@ -76,20 +78,28 @@ function Calendar() {
           Tasks for {selectedDate ? selectedDate : "Select a date"}
         </h3>
         <ul className="text-white">
-          {selectedDate && tasks.some((task) => task.date === selectedDate) ? (
-            tasks
-              .filter((task) => task.date === selectedDate)
-              .map((task) => (
-                <li key={task._id} className="bg-gray-600 p-2 rounded-md mb-2">
-                  <Link to={`/task/${task._id}`} className="text-blue-400 hover:underline">
-                    <strong>{task.title}</strong>
-                  </Link>
-                </li>
-              ))
-          ) : (
-            <p className="text-gray-400">No tasks for this date.</p>
-          )}
-        </ul>
+  {selectedDate &&
+    tasks.filter((task) => {
+      // Extract YYYY-MM-DD from task.date
+      const taskDate = new Date(task.date).toISOString().split("T")[0];
+      return taskDate === selectedDate;
+    }).length > 0 ? (
+      tasks
+        .filter((task) => {
+          const taskDate = new Date(task.date).toISOString().split("T")[0];
+          return taskDate === selectedDate;
+        })
+        .map((task) => (
+          <li key={task._id} className="bg-gray-600 p-2 rounded-md mb-2">
+            <Link to={`/task/${task._id}`} className="text-blue-400 hover:underline">
+              <strong>{task.title}</strong>
+            </Link>
+          </li>
+        ))
+    ) : (
+      <p className="text-gray-400">No tasks for this date.</p>
+    )}
+</ul>
       </div>
     </div>
   );

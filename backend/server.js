@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cohere = require("cohere-ai");
+const Task = require("./modules/TaskSchema");
+const Progress = require("./modules/TaskProgressSchema");
+const { useState } = require("react");
 require("dotenv").config();
 
 const app = express();
@@ -21,52 +24,60 @@ mongoose
   .catch((err) => console.error("DB Connection Error:", err));
 
 // Task Schema
-const taskSchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  date: String,
-  duration: Number,
-  status: { type: String, default: "pending" },
-  isAiSuggested: { type: Boolean, default: false },
-  originalTitle: String,
-  originalDescription: String,
-});
+// const taskSchema = new mongoose.Schema({
+//   title: String,
+//   description: String,
+//   date: { type: Date, required: true }, // Change from String to Date type
+//   duration: Number,
+//   status: { type: String, default: "pending" },
+//   isAiSuggested: { type: Boolean, default: false },
+//   originalTitle: String,
+//   originalDescription: String,
+//   elapsedTime: { type: Number, default: 0 }, // Store accumulated time
+// }, { timestamps: true }); // Adds createdAt & updatedAt fields
 
-const Task = mongoose.model("Task", taskSchema);
+// const Task = mongoose.model("Task", taskSchema);
 
 // API Routes
 // Create a new task
 app.post("/tasks", async (req, res) => {
-  const task = new Task(req.body);
-  await task.save();
-  res.status(201).send(task);
+  try {
+    const task = new Task(req.body);
+    await task.save();
+    let progress = await Progress.findOneAndUpdate();
+    if (!progress) {
+        progress = new Progress({ remaining: 1, completed: 0 });
+    } else {
+        progress.remaining += 1;
+    }
+    await progress.save();
+    res.status(201).send(task);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating task", error });
+  }
 });
 
-// Step 1: User submits a task (gets AI suggestion)
+// AI Suggestion for Task
 app.post("/ai-suggest", async (req, res) => {
   try {
     const { title, description, duration } = req.body;
     const prompt = `I am creating an AI-powered study planner. The user wants to study: ${title}.
 Provide the best learning resources in the following format:
 
-YouTube Resource(answer in 30words): A relevant YouTube video or channel.
-Official Documentation / Trusted Article(only 2name): A link to official documentation or a well-trusted article.
-Book / Online Course (if applicable)(only 2name): A recommended book or an online course.
-Website for Practice(only 2name): Suggest website name for practice or gives test or exams.
+YouTube Resource (max 30 words): 
+Official Documentation / Trusted Article (2 names only): 
+Book / Online Course (2 names only): 
+Website for Practice (2 names only): 
 Ensure all recommendations are high-quality and relevant to the topic.`;
 
     const response = await cohere.generate({
       model: "command",
       prompt,
-      max_tokens: 100,
+      max_tokens: 150,
       temperature: 0.7,
     });
 
-    if (!response || !response.body || !response.body.generations) {
-      return res.status(500).json({ message: "AI suggestion failed" });
-    }
-
-    const improvedDescription = response.body.generations[0]?.text?.trim() || description;
+    const improvedDescription = response?.body?.generations?.[0]?.text?.trim() || description;
 
     res.json({
       title,
@@ -81,25 +92,32 @@ Ensure all recommendations are high-quality and relevant to the topic.`;
   }
 });
 
-// Step 2: User accepts or rejects AI suggestion (task is saved)
+// Save a task
 app.post("/save-task", async (req, res) => {
   try {
-    const { title, description, date, duration, isAiSuggested, originalTitle, originalDescription } = req.body;
+    const { title, description, date, duration, isAiSuggested, originalTitle, originalDescription} = req.body;
+    console.log(req.body, "routte date");
 
     const task = new Task({
       title,
       description,
       date,
       duration,
-      isAiSuggested, // true if AI suggestion is accepted, false if rejected
+      isAiSuggested,
       originalTitle,
       originalDescription,
     });
+    let progress = await Progress.findOneAndUpdate(
+      {}, 
+      { $inc: { remaining: 1 } },  // Increment `remaining` by 1
+      { new: true, upsert: true }  // Return updated document, create if not exists
+    );
+
+    console.log(progress,"dfgh");
 
     await task.save();
     res.status(201).json({ message: "Task saved successfully!", task });
   } catch (error) {
-    console.error("Error saving task:", error);
     res.status(500).json({ message: "Error saving task", error });
   }
 });
@@ -107,45 +125,89 @@ app.post("/save-task", async (req, res) => {
 // Get all tasks
 app.get("/tasks", async (req, res) => {
   try {
-    const tasks = await Task.find();
+    const tasks = await Task.find().sort({ createdAt: -1 }); // Sort by newest tasks first
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ message: "Error fetching tasks", error });
   }
 });
 
-// Get a task by ID
+// Get a single task by ID
 app.get("/tasks/:id", async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
-    if (!task) return res.status(404).json({ message: "Task not found" });
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
     res.json(task);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching task", error });
+    res.status(500).json({ error: "Error fetching task" });
   }
 });
+
 
 // Update a task
 app.put("/tasks/:id", async (req, res) => {
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!task) return res.status(404).json({ message: "Task not found" });
-    res.json(task);
+    const { elapsedTime, ...updateFields } = req.body;
+    const task = await Task.findById(req.params.id);
+    const updatedTask = await Task.findByIdAndUpdate(
+      req.params.id,
+      { ...updateFields, ...(elapsedTime !== undefined ? { elapsedTime } : {}) },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    // Check if elapsedTime matches duration
+    if (elapsedTime >= task.duration) {
+      let progress = await Progress.findOne();
+      if (progress) {
+        progress.completed += 1;
+        if (progress.remaining > 0) {
+          progress.remaining -= 1;
+        }
+        await progress.save();
+      }
+    }
+
+    res.json(updatedTask);
   } catch (error) {
-    res.status(500).json({ message: "Error updating task", error });
+    res.status(500).json({ error: "Error updating task" });
   }
 });
+
+
 
 // Delete a task
 app.delete("/tasks/:id", async (req, res) => {
   try {
     const task = await Task.findByIdAndDelete(req.params.id);
     if (!task) return res.status(404).json({ message: "Task not found" });
+    let progress = await Progress.findOne();
+        if (progress && progress.remaining > 0) {
+            progress.remaining -= 1;
+            await progress.save();
+        }
+
     res.json({ message: "Task deleted successfully!" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting task", error });
   }
 });
+
+app.get("/progress", async (req, res) => {
+  try {
+      const progress = await Progress.findOne();
+      res.json(progress || { remaining: 0, completed: 0 });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error fetching progress" });
+  }
+});
+
 
 // Start Server
 const PORT = process.env.PORT || 5000;
