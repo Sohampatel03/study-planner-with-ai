@@ -1,70 +1,54 @@
-# Getting Started with Create React App
+# Study Planner with AI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+Study Planner with AI is a task management web application that helps users organize their study schedules efficiently. It features task tracking, a progress dashboard, a calendar for scheduling, and AI-based study recommendations.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Task Management**: Add, edit, and delete study tasks.
+- **Progress Tracking**: View completed and pending tasks with visual indicators.
+- **Calendar Integration**: Schedule tasks and track deadlines.
+- **AI-Powered Recommendations**: Get personalized study suggestions.
+- **User Authentication**: Secure login and logout functionality.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Folder Structure
 
-### `npm test`
+The project is divided into two main parts: `frontend` (React) and `backend` (Node.js with Express).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 📂 Project Structure
 
-### `npm run build`
+study-planner-with-ai/ ├── frontend/ # Frontend (React) │ ├── public/ # Static assets │ ├── src/
+│ │ ├── assets/ # Images, icons, styles │ │ ├── components/ # Reusable UI components │ │ ├── pages/ # Pages (Dashboard, Login, etc.) │ │ ├── context/ # Context API for global state │ │ ├── hooks/ # Custom hooks │ │ ├── services/ # API calls │ │ ├── utils/ # Helper functions │ │ ├── App.js # Main App component │ │ ├── index.js # Entry point │ ├── .env # Environment variables │ ├── package.json # Dependencies │ ├── tailwind.config.js # Tailwind CSS configuration │ ├── vite.config.js # Vite configuration │ └── README.md # Frontend documentation │ ├── backend/ # Backend (Node.js & Express) │ ├── src/ │ │ ├── config/ # Database & environment config │ │ ├── controllers/ # API controllers │ │ ├── models/ # Mongoose models │ │ ├── routes/ # API routes │ │ ├── middleware/ # Authentication & validation │ │ ├── services/ # Business logic & AI integration │ │ ├── utils/ # Utility functions │ │ ├── app.js # Express application setup │ ├── .env # Environment variables │ ├── package.json # Dependencies │ ├── server.js # Entry point │ └── README.md # Backend documentation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🚀 Setup Instructions
 
-### `npm run eject`
+### 1️⃣ Frontend Setup
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```sh
+cd frontend
+npm install
+npm run dev
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+cd backend
+npm install
+npm start
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+🛠️ Technologies Used
+Frontend:
+React.js
+Tailwind CSS
+Vite
+Backend:
+Node.js
+Express.js
+MongoDB (Mongoose)
+JWT Authentication
+🤝 Contributing
+Feel free to submit issues or create pull requests. Contributions are always welcome!
