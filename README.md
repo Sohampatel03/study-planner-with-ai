@@ -18,10 +18,6 @@ Study Planner with AI is a task management web application that helps users orga
 
 The project is divided into two main parts: `frontend` (React) and `backend` (Node.js with Express).
 
-### 📂 Project Structure
-
-study-planner-with-ai/ ├── frontend/ # Frontend (React) │ ├── public/ # Static assets │ ├── src/
-│ │ ├── assets/ # Images, icons, styles │ │ ├── components/ # Reusable UI components │ │ ├── pages/ # Pages (Dashboard, Login, etc.) │ │ ├── context/ # Context API for global state │ │ ├── hooks/ # Custom hooks │ │ ├── services/ # API calls │ │ ├── utils/ # Helper functions │ │ ├── App.js # Main App component │ │ ├── index.js # Entry point │ ├── .env # Environment variables │ ├── package.json # Dependencies │ ├── tailwind.config.js # Tailwind CSS configuration │ ├── vite.config.js # Vite configuration │ └── README.md # Frontend documentation │ ├── backend/ # Backend (Node.js & Express) │ ├── src/ │ │ ├── config/ # Database & environment config │ │ ├── controllers/ # API controllers │ │ ├── models/ # Mongoose models │ │ ├── routes/ # API routes │ │ ├── middleware/ # Authentication & validation │ │ ├── services/ # Business logic & AI integration │ │ ├── utils/ # Utility functions │ │ ├── app.js # Express application setup │ ├── .env # Environment variables │ ├── package.json # Dependencies │ ├── server.js # Entry point │ └── README.md # Backend documentation
 
 
 ---
@@ -33,12 +29,12 @@ study-planner-with-ai/ ├── frontend/ # Frontend (React) │ ├── publ
 ```sh
 cd frontend
 npm install
-npm run dev
+npm start
 
 
 cd backend
-npm install
-npm start
+npm i --global nodemon
+nodemon server.js
 
 🛠️ Technologies Used
 Frontend:
