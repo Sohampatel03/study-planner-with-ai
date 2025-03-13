@@ -9,11 +9,12 @@ function AiSuggestedTask() {
   const { originalTask, aiTask } = location.state || { originalTask: {}, aiTask: {} };
   console.log({originalTask},"taskoriginal");
   const [task, setTask] = useState(aiTask || {});
-
+  const userId = localStorage.getItem("userId");
   // Function to handle Accept (Save AI suggestion)
   const handleAccept = async () => {
     // Keep the original title and duration, update only the description
     const updatedTask = {
+      userId,
       ...originalTask, // Keep title and duration the same
       description: aiTask.improvedDescription, // Update only the description
     };
@@ -22,7 +23,10 @@ function AiSuggestedTask() {
   
     const response = await fetch("http://localhost:5000/save-task", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is being added here
+      },
       body: JSON.stringify(updatedTask), // Send only updated description
     });
   
@@ -35,10 +39,14 @@ function AiSuggestedTask() {
   };
   // Function to handle Reject (Save original user input)
   const handleReject = async () => {
+    const updatedTask = { ...originalTask, userId };
     const response = await fetch("http://localhost:5000/save-task", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(originalTask), // Save original task
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is being added here
+      },
+      body: JSON.stringify(updatedTask), // Save original task
     });
 
     if (response.ok) {

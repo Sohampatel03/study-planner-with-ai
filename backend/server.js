@@ -4,14 +4,22 @@ const cors = require("cors");
 const cohere = require("cohere-ai");
 const Task = require("./modules/TaskSchema");
 const Progress = require("./modules/TaskProgressSchema");
+const User = require("./modules/UserSchema");
 const { useState } = require("react");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow frontend origin
+    credentials: true, // Allow cookies and authentication headers
+  })
+);
 
 // Initialize Cohere API
 cohere.init(process.env.COHERE_API_KEY);
@@ -22,6 +30,32 @@ mongoose
   .connect("mongodb://127.0.0.1:27017/studyplanner", { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error("DB Connection Error:", err));
+
+  const blacklistedTokens = new Set();
+
+const authMiddleware = (req, res, next) => {
+    let token = req.header("Authorization");
+
+    if (!token || !token.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "Access Denied. No Token Provided." });
+    }
+
+    token = token.split(" ")[1];
+
+    if (blacklistedTokens.has(token)) {
+        return res.status(401).json({ message: "Token is invalid. Please log in again." });
+    }
+
+    try {
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = verified;
+        next();
+    } catch (error) {
+        res.status(400).json({ message: "Invalid Token" });
+    }
+};
+
+  
 
 // Task Schema
 // const taskSchema = new mongoose.Schema({
@@ -39,8 +73,62 @@ mongoose
 // const Task = mongoose.model("Task", taskSchema);
 
 // API Routes
+// Register User
+app.post("/register", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const userExists = await User.findOne({ email });
+
+    if (userExists) return res.status(400).json({ message: "User already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ name, email, password: hashedPassword });
+
+    await newUser.save();
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error registering user", error });
+  }
+});
+
+// Login User
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+  } catch (error) {
+    res.status(500).json({ message: "Error logging in", error });
+  }
+});
+//logout route
+app.post("/logout",(req, res) => {
+  const token = req.header("Authorization").split(" ")[1];
+  blacklistedTokens.add(token);
+  res.json({ message: "Logged out successfully" });
+});
+
+
+
+// Get User Data (Protected)
+app.get("/user", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user data", error });
+  }
+});
 // Create a new task
-app.post("/tasks", async (req, res) => {
+app.post("/tasks",authMiddleware, async (req, res) => {
   try {
     const task = new Task(req.body);
     await task.save();
@@ -58,7 +146,7 @@ app.post("/tasks", async (req, res) => {
 });
 
 // AI Suggestion for Task
-app.post("/ai-suggest", async (req, res) => {
+app.post("/ai-suggest",authMiddleware, async (req, res) => {
   try {
     const { title, description, duration } = req.body;
     const prompt = `I am creating an AI-powered study planner. The user wants to study: ${title}.
@@ -93,12 +181,15 @@ Ensure all recommendations are high-quality and relevant to the topic.`;
 });
 
 // Save a task
-app.post("/save-task", async (req, res) => {
+app.post("/save-task",authMiddleware, async (req, res) => {
   try {
     const { title, description, date, duration, isAiSuggested, originalTitle, originalDescription} = req.body;
+    // const{user} = req.user.id;
+    // console.log(user,"iserid");
     console.log(req.body, "routte date");
 
     const task = new Task({
+      userId: req.user.id,
       title,
       description,
       date,
@@ -147,7 +238,7 @@ app.get("/tasks/:id", async (req, res) => {
 
 
 // Update a task
-app.put("/tasks/:id", async (req, res) => {
+app.put("/tasks/:id",authMiddleware, async (req, res) => {
   try {
     const { elapsedTime, ...updateFields } = req.body;
     const task = await Task.findById(req.params.id);
@@ -182,7 +273,7 @@ app.put("/tasks/:id", async (req, res) => {
 
 
 // Delete a task
-app.delete("/tasks/:id", async (req, res) => {
+app.delete("/tasks/:id",authMiddleware, async (req, res) => {
   try {
     const task = await Task.findByIdAndDelete(req.params.id);
     if (!task) return res.status(404).json({ message: "Task not found" });
@@ -207,6 +298,7 @@ app.get("/progress", async (req, res) => {
       res.status(500).json({ error: "Error fetching progress" });
   }
 });
+
 
 
 // Start Server

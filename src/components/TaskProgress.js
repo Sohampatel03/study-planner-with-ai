@@ -107,6 +107,13 @@ const TaskProgress = () => {
 
       {/* Badge Section */}
       <h1 className="text-lg font-bold text-white mt-6 text-center">🏆 Badges</h1>
+      <div className="flex justify-start mt-4">
+  <img
+    src="https://ih1.redbubble.net/image.5226491706.2802/st,small,507x507-pad,600x600,f8f8f8.jpg"  // Update with the correct path
+    alt="Completed Task Badge"
+    className="w-20 h-20 object-contain rounded-[50%]"
+  />
+</div>
     </div>
   );
 };

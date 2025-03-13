@@ -66,6 +66,7 @@ function TimerPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is being added here
         },
         body: JSON.stringify({ elapsedTime: minutesElapsed }),
       });
