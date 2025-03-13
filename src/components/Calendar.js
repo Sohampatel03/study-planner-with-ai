@@ -22,14 +22,12 @@ function Calendar() {
 
   const handleDateClick = (day) => {
     const selectedFullDate = new Date(currentYear, currentMonth, day)
-      .toLocaleDateString("en-CA"); // Format as YYYY-MM-DD correctly
+      .toLocaleDateString("en-CA"); // Format as YYYY-MM-DD
     setSelectedDate(selectedFullDate);
   };
-  
 
   const goToPreviousMonth = () => {
     setCurrentMonth((prevMonth) => (prevMonth === 0 ? 11 : prevMonth - 1));
-    console.log("Cohere API Key:", process.env.COHERE_API_KEY);
     if (currentMonth === 0) setCurrentYear((prevYear) => prevYear - 1);
   };
 
@@ -38,8 +36,13 @@ function Calendar() {
     if (currentMonth === 11) setCurrentYear((prevYear) => prevYear + 1);
   };
 
+  // Create a set of task dates for quick lookup
+  const taskDates = new Set(
+    tasks.map((task) => new Date(task.date).toISOString().split("T")[0])
+  );
+
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-3/4 mx-auto mt-5 h[screen]">
+    <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-3/4 mx-auto mt-5">
       <div className="flex justify-between items-center mb-4">
         <button onClick={goToPreviousMonth} className="bg-gray-600 text-white px-3 py-1 rounded-md hover:bg-gray-500">
           ←
@@ -56,13 +59,17 @@ function Calendar() {
         <div className="grid grid-cols-7 gap-2">
           {[...Array(getDaysInMonth(currentMonth, currentYear))].map((_, dayIndex) => {
             const day = dayIndex + 1;
+            const dateKey = new Date(currentYear, currentMonth, day).toLocaleDateString("en-CA");
+
             return (
               <button
                 key={day}
                 onClick={() => handleDateClick(day)}
-                className={`p-2 rounded-md text-sm ${
-                  selectedDate === new Date(currentYear, currentMonth, day).toLocaleDateString("en-CA")
-                    ? "bg-blue-500"
+                className={`p-2 rounded-md text-sm transition-colors ${
+                  selectedDate === dateKey
+                    ? "bg-blue-500" // Selected date
+                    : taskDates.has(dateKey)
+                    ? "bg-green-500" // Highlighted date with tasks
                     : "bg-gray-600"
                 } text-white hover:bg-blue-400`}
               >
@@ -78,28 +85,27 @@ function Calendar() {
           Tasks for {selectedDate ? selectedDate : "Select a date"}
         </h3>
         <ul className="text-white">
-  {selectedDate &&
-    tasks.filter((task) => {
-      // Extract YYYY-MM-DD from task.date
-      const taskDate = new Date(task.date).toISOString().split("T")[0];
-      return taskDate === selectedDate;
-    }).length > 0 ? (
-      tasks
-        .filter((task) => {
-          const taskDate = new Date(task.date).toISOString().split("T")[0];
-          return taskDate === selectedDate;
-        })
-        .map((task) => (
-          <li key={task._id} className="bg-gray-600 p-2 rounded-md mb-2">
-            <Link to={`/task/${task._id}`} className="text-blue-400 hover:underline">
-              <strong>{task.title}</strong>
-            </Link>
-          </li>
-        ))
-    ) : (
-      <p className="text-gray-400">No tasks for this date.</p>
-    )}
-</ul>
+          {selectedDate &&
+          tasks.filter((task) => {
+            const taskDate = new Date(task.date).toISOString().split("T")[0];
+            return taskDate === selectedDate;
+          }).length > 0 ? (
+            tasks
+              .filter((task) => {
+                const taskDate = new Date(task.date).toISOString().split("T")[0];
+                return taskDate === selectedDate;
+              })
+              .map((task) => (
+                <li key={task._id} className="bg-gray-600 p-2 rounded-md mb-2">
+                  <Link to={`/task/${task._id}`} className="text-blue-400 hover:underline">
+                    <strong>{task.title}</strong>
+                  </Link>
+                </li>
+              ))
+          ) : (
+            <p className="text-gray-400">No tasks for this date.</p>
+          )}
+        </ul>
       </div>
     </div>
   );

@@ -22,7 +22,10 @@ function AddTask() {
 console.log("Task Data:", formattedTask);
     const response = await fetch("http://localhost:5000/ai-suggest", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is being added here
+      },
       body: JSON.stringify(formattedTask), // Save original task
     });
 
@@ -57,7 +60,6 @@ console.log("Task Data:", formattedTask);
           <textarea
             value={task.description}
             placeholder="Enter Description Related to Task"
-            defaultValue={task.title}
             onChange={(e) => setTask({ ...task, description: e.target.value })}
             className="w-full p-2 border rounded-md h-24"
             required

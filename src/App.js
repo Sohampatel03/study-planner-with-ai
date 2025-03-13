@@ -4,26 +4,43 @@ import Header from './components/Header';
 import TaskList from './components/TaskList';
 import TaskProgress from './components/TaskProgress';
 import Calendar from './components/Calendar';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { createContext, useEffect, useState } from "react";
 import AddTask from './pages/AddTask';
 import TaskDetails from './pages/TaskDetails';
 import AISearchBar from './components/AISearchBar';
 import AiSuggestedTask from './pages/AiSuggestedTask';
 import TimerPage from './pages/TimerPage';
+import axios from "axios";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
+export const AuthContext = createContext();
 
 function App() {
-  const [tasks, setTasks] = useState({
-    1: ["Complete UI Design", "Submit Assignment"],
-    5: ["Workout", "Team Meeting"],
-    10: ["Grocery Shopping"],
-  });
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios.get("http://localhost:5000/user",  {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,  // Ensure "Bearer " is included
+        },
+      })
+        .then(res => setUser(res.data))
+        .catch(() => {
+          localStorage.removeItem("token");
+          setUser(null); // Ensure the user state updates correctly
+        });
+    }
+  }, []);
   
   const handleAddTask = () => {
     console.log("Add Task Clicked!");
   };
   return (
+    <AuthContext.Provider value={{ user, setUser }}>
     <BrowserRouter>
        <div className="min-h-screen bg-gray-900 text-white p-6">
         {/* Header Section */}
@@ -32,22 +49,25 @@ function App() {
 
         {/* Main Layout */}
         <Routes>
-          <Route path="/" element={
+          <Route path="/" element={user ?
             <div className="grid grid-cols-3 gap-4 mt-6">
               <TaskProgress completed={10} remaining={23}/>
-              <TaskList   tasks={tasks} />
-              <Calendar tasks={tasks} />
-            </div>
+              <TaskList />
+              <Calendar/> 
+            </div> : <Navigate to="/login"/>
           } />
-          <Route path="/add-task" element={<AddTask />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/task/:id" element={<TaskDetails />} />
-          <Route path="/timer/:id" element={<TimerPage />} />
-        <Route path="/ai-suggested-task" element={<AiSuggestedTask/>} />
+          <Route path="/login" element={user ? <Navigate to="/"/> : <Login />} />
+          <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+          <Route path="/add-task" element={user ? <AddTask /> : <Navigate to="/login" />} />
+          <Route path="/calendar" element={user ? <Calendar /> : <Navigate to="/login" />} />
+          <Route path="/task/:id" element={user ? <TaskDetails /> : <Navigate to="/login" />} />
+          <Route path="/timer/:id" element={user ? <TimerPage /> : <Navigate to="/login" />} />
+        <Route path="/ai-suggested-task" element={user ? <AiSuggestedTask /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </BrowserRouter>
+    </AuthContext.Provider>
   );
-}
+};
 
 export default App;

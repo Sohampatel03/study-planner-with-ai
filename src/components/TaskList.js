@@ -10,7 +10,7 @@ function TaskList() {
       .then((data) => setTasks(data))
       .catch((error) => console.error("Error fetching tasks:", error));
   }, []);
-
+  console.log(tasks,"task")
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-[100%] mx-auto mt-5 text-white h[screen]">
       <h2 className="text-2xl font-bold mb-4">Task List</h2>
