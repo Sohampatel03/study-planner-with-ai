@@ -32,12 +32,12 @@ function TimerPage() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is being added here
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
         const data = await response.json();
         if (data) {
-          setSeconds((data.elapsedTime || 0) * 60); // Convert minutes to seconds
+          setSeconds((data.elapsedTime || 0) * 60);
           setTaskTitle(data.title);
           if (data.duration) {
             setTaskDuration(formatDuration(data.duration));
@@ -72,7 +72,7 @@ function TimerPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is being added here
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ elapsedTime: minutesElapsed }),
       });
@@ -81,7 +81,6 @@ function TimerPage() {
         throw new Error("Failed to update elapsed time");
       }
       console.log("Elapsed time updated successfully", { elapsedTime: minutesElapsed });
-
     } catch (error) {
       console.error("Error updating elapsed time:", error);
     }
@@ -96,12 +95,12 @@ function TimerPage() {
   // Back button - Save elapsed time and navigate
   const handleBack = async () => {
     await updateTaskTime();
-    navigate(-1);
+    navigate("/");
   };
 
   return (
     <div className="bg-gray-900 min-h-screen flex items-center justify-center">
-      <div className="bg-white/10 backdrop-blur-md shadow-lg p-8 rounded-2xl w-full max-w-md text-center border border-white/20">
+      <div className="bg-white/10 backdrop-blur-md shadow-lg p-8 rounded-2xl w-full max-w-md text-center border border-white/20 mt-[-50px]">
         
         {/* Task Title */}
         <h1 className="text-2xl font-bold text-white mb-2">{taskTitle || "Task Timer"}</h1>
@@ -116,21 +115,23 @@ function TimerPage() {
           {formatTime(seconds)}
         </div>
 
-        {/* Pause / Resume Button */}
-        <button
-          onClick={() => {
-            if (isRunning) {
-              handlePause();
-            } else {
-              setIsRunning(true);
-            }
-          }}
-          className={`w-24 h-24 rounded-full text-xl font-bold transition-all flex items-center justify-center
-            ${isRunning ? "bg-yellow-500 hover:bg-yellow-400" : "bg-green-500 hover:bg-green-400"} 
-            shadow-lg text-white`}
-        >
-          {isRunning ? "Pause" : "Start"}
-        </button>
+        {/* Button Container - Centering Start/Pause Button */}
+        <div className="flex justify-center">
+          <button
+            onClick={() => {
+              if (isRunning) {
+                handlePause();
+              } else {
+                setIsRunning(true);
+              }
+            }}
+            className={`w-24 h-24 rounded-full text-xl font-bold transition-all flex items-center justify-center
+              ${isRunning ? "bg-yellow-500 hover:bg-yellow-400" : "bg-green-500 hover:bg-green-400"} 
+              shadow-lg text-white`}
+          >
+            {isRunning ? "Pause" : "Start"}
+          </button>
+        </div>
 
         {/* Back Button */}
         <button

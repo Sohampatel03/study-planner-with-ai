@@ -10,7 +10,7 @@ function Calendar() {
   useEffect(() => {
     const fetchTasks = async () => {
         try {
-          console.log("Token from localStorage:", localStorage.getItem("token"));
+          console.log("Token from localStorage calender:", localStorage.getItem("token"));
           const response = await fetch("http://localhost:5000/tasks", {
             method: "GET",
             headers: {
@@ -29,6 +29,7 @@ function Calendar() {
           console.error("Error fetching tasks:", error);
         }
     };
+    fetchTasks();
   }, []);
 
   const months = [
@@ -87,7 +88,7 @@ function Calendar() {
                   selectedDate === dateKey
                     ? "bg-blue-500" // Selected date
                     : taskDates.has(dateKey)
-                    ? "bg-green-500" // Highlighted date with tasks
+                    ? "bg-yellow-400" // Highlighted date with tasks
                     : "bg-gray-600"
                 } text-white hover:bg-blue-400`}
               >

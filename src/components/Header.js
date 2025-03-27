@@ -4,8 +4,7 @@ import { AuthContext } from "../App";
 
 const Header = () => {
   const navigate = useNavigate();
-
-  const { user ,setUser } = useContext(AuthContext); // Import AuthContext
+  const { user, setUser } = useContext(AuthContext);
 
   const handleLogout = async () => {
     try {
@@ -17,10 +16,10 @@ const Header = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-  
+
       if (response.ok) {
         localStorage.removeItem("token");
-        setUser(null); // **Update user state to null**
+        setUser(null);
         navigate("/login");
       } else {
         console.error("Failed to log out.");
@@ -29,10 +28,9 @@ const Header = () => {
       console.error("Error logging out:", error);
     }
   };
-  
 
   return (
-    <header className="bg-gray-800 p-4 flex justify-between items-center text-white">
+    <header className="fixed top-0 left-0 w-full z-50 bg-gray-800 shadow-md p-4 flex justify-between items-center text-white">
       <h1 className="text-2xl font-bold">Task Manager</h1>
       <div className="flex gap-4">
         <button
@@ -41,12 +39,14 @@ const Header = () => {
         >
           + Add Task
         </button>
-        {user && <button
-          onClick={handleLogout}
-          className="bg-red-500 px-4 py-2 rounded-md hover:bg-red-600"
-        >
-          Logout
-        </button>}
+        {user && (
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 px-4 py-2 rounded-md hover:bg-red-600"
+          >
+            Logout
+          </button>
+        )}
       </div>
     </header>
   );
