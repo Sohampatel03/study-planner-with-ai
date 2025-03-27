@@ -1,15 +1,39 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../App";
 
 function TaskList() {
+  const { user } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/tasks")
-      .then((res) => res.json())
-      .then((data) => setTasks(data))
-      .catch((error) => console.error("Error fetching tasks:", error));
-  }, []);
+    const fetchTasks = async () => {
+      if (user) {
+        try {
+          console.log("Token from localStorage:", localStorage.getItem("token"));
+          const response = await fetch("http://localhost:5000/tasks", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+  
+          if (!response.ok) {
+            throw new Error("Failed to fetch tasks");
+          }
+  
+          const data = await response.json();
+          setTasks(data);
+        } catch (error) {
+          console.error("Error fetching tasks:", error);
+        }
+      }
+    };
+  
+    fetchTasks();
+  }, [user]);
+  
   console.log(tasks,"task")
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-[100%] mx-auto mt-5 text-white h[screen]">

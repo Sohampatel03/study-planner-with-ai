@@ -33,27 +33,28 @@ mongoose
 
   const blacklistedTokens = new Set();
 
-const authMiddleware = (req, res, next) => {
-    let token = req.header("Authorization");
+  const authMiddleware = (req, res, next) => {
+    const authHeader = req.header("Authorization");
 
-    if (!token || !token.startsWith("Bearer ")) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(401).json({ message: "Access Denied. No Token Provided." });
     }
 
-    token = token.split(" ")[1];
+    const token = authHeader.split(" ")[1];
 
     if (blacklistedTokens.has(token)) {
         return res.status(401).json({ message: "Token is invalid. Please log in again." });
     }
 
     try {
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = verified;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = { id: decoded.id };  // Explicitly set req.user.id
         next();
     } catch (error) {
         res.status(400).json({ message: "Invalid Token" });
     }
 };
+
 
   
 
@@ -214,9 +215,10 @@ app.post("/save-task",authMiddleware, async (req, res) => {
 });
 
 // Get all tasks
-app.get("/tasks", async (req, res) => {
+app.get("/tasks",authMiddleware, async (req, res) => {
   try {
-    const tasks = await Task.find().sort({ createdAt: -1 }); // Sort by newest tasks first
+    console.log(req.user.id , "from server id")
+    const tasks = await Task.find({ userId: req.user.id }).sort({ createdAt: -1 }); // Sort by newest tasks first
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ message: "Error fetching tasks", error });
@@ -224,7 +226,7 @@ app.get("/tasks", async (req, res) => {
 });
 
 // Get a single task by ID
-app.get("/tasks/:id", async (req, res) => {
+app.get("/tasks/:id",authMiddleware, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
     if (!task) {

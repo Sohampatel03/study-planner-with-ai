@@ -8,9 +8,27 @@ function Calendar() {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
-    fetch("http://localhost:5000/tasks")
-      .then((res) => res.json())
-      .then((data) => setTasks(data));
+    const fetchTasks = async () => {
+        try {
+          console.log("Token from localStorage:", localStorage.getItem("token"));
+          const response = await fetch("http://localhost:5000/tasks", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+  
+          if (!response.ok) {
+            throw new Error("Failed to fetch tasks");
+          }
+  
+          const data = await response.json();
+          setTasks(data);
+        } catch (error) {
+          console.error("Error fetching tasks:", error);
+        }
+    };
   }, []);
 
   const months = [
