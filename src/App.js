@@ -42,7 +42,7 @@ function App() {
   return (
     <AuthContext.Provider value={{ user, setUser }}>
     <BrowserRouter>
-       <div className="min-h-screen bg-gray-900 text-white p-6">
+       <div className="min-h-screen bg-gray-900 text-white p-6 pt-16">
         {/* Header Section */}
         <Header onAddTask={handleAddTask} />
         {/* <AISearchBar /> */}

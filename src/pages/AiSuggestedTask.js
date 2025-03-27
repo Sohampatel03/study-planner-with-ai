@@ -94,14 +94,14 @@ function AiSuggestedTask() {
       <div className="flex justify-between">
         <button 
           onClick={handleAccept} 
-          className="w-1/2 bg-blue-600 hover:bg-green-800 text-white font-semibold py-2 rounded-md mr-2"
+          className="w-1/2 bg-green-600 hover:bg-green-800 text-white font-semibold py-2 rounded-md mr-2"
         >
           Accept & Save
         </button>
 
         <button 
           onClick={handleReject} 
-          className="w-1/2 bg-blue-600 hover:bg-red-800 text-white font-semibold py-2 rounded-md ml-2"
+          className="w-1/2 bg-red-600 hover:bg-red-800 text-white font-semibold py-2 rounded-md ml-2"
         >
           Reject & Save Original
         </button>
