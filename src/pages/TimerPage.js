@@ -28,7 +28,13 @@ function TimerPage() {
   useEffect(() => {
     const fetchTaskTime = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/tasks/${id}`);
+        const response = await fetch(`http://localhost:5000/tasks/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is being added here
+          },
+        });
         const data = await response.json();
         if (data) {
           setSeconds((data.elapsedTime || 0) * 60); // Convert minutes to seconds

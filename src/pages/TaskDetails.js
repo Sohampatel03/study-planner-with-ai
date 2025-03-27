@@ -9,13 +9,28 @@ function TaskDetails() {
   const [formData, setFormData] = useState({ title: "", description: "", date: "" });
 
   useEffect(() => {
-    fetch(`http://localhost:5000/tasks/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTask(data);
-        setFormData({ title: data.title, description: data.description, date: data.date });
-      });
-  }, [id]);
+  fetch(`http://localhost:5000/tasks/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("Failed to fetch task");
+      }
+      return res.json();
+    })
+    .then((data) => {
+      setTask(data);
+      setFormData({ title: data.title, description: data.description, date: data.date });
+    })
+    .catch((error) => {
+      console.error("Error fetching task:", error);
+    });
+}, [id]);
+
 
   const handleDelete = () => {
     fetch(`http://localhost:5000/tasks/${id}`, { method: "DELETE" , headers: {
