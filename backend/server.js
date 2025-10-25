@@ -163,7 +163,7 @@ Ensure all recommendations are high-quality and relevant to the topic.`;
 
     const response = await cohere.chat({
       model: "command",
-      messages: prompt,
+      message: prompt,
       max_tokens: 150,
       temperature: 0.7,
     });
