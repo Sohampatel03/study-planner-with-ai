@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+const controller = new AbortController();
+const timeout = setTimeout(() => controller.abort(), 40000);
 
 function AddTask() {
   const navigate = useNavigate();
@@ -33,7 +35,9 @@ function AddTask() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(formattedTask),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
 
       if (response.ok) {
         const aiSuggestedTask = await response.json();
