@@ -148,9 +148,10 @@ app.post("/tasks",authMiddleware, async (req, res) => {
 });
 
 // AI Suggestion for Task
-app.post("/ai-suggest",authMiddleware, async (req, res) => {
+app.post("/ai-suggest", authMiddleware, async (req, res) => {
   try {
     const { title, description, duration } = req.body;
+
     const prompt = `I am creating an AI-powered study planner. The user wants to study: ${title}.
 Provide the best learning resources in the following format:
 
@@ -160,14 +161,18 @@ Book / Online Course (2 names only):
 Website for Practice (2 names only): 
 Ensure all recommendations are high-quality and relevant to the topic.`;
 
-    const response = await cohere.generate({
+    const response = await cohere.chat({
       model: "command",
-      prompt,
+      messages: [
+        { role: "system", content: "You are an AI task planner." },
+        { role: "user", content: prompt },
+      ],
       max_tokens: 150,
       temperature: 0.7,
     });
 
-    const improvedDescription = response?.body?.generations?.[0]?.text?.trim() || description;
+    const improvedDescription =
+      response?.choices?.[0]?.message?.content?.trim() || description;
 
     res.json({
       title,
@@ -181,6 +186,7 @@ Ensure all recommendations are high-quality and relevant to the topic.`;
     res.status(500).json({ message: "Error fetching AI suggestion", error });
   }
 });
+
 
 // Save a task
 app.post("/save-task",authMiddleware, async (req, res) => {
