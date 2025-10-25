@@ -33,12 +33,12 @@ const Header = () => {
     <header className="fixed top-0 left-0 w-full z-50 bg-gray-800 shadow-md p-4 flex justify-between items-center text-white">
       <h1 className="text-2xl font-bold">Task Manager</h1>
       <div className="flex gap-4">
-        <button
+        {user && <button
           onClick={() => navigate("/add-task")}
           className="bg-blue-500 px-4 py-2 rounded-md hover:bg-blue-600"
         >
           + Add Task
-        </button>
+        </button> }
         {user && (
           <button
             onClick={handleLogout}
