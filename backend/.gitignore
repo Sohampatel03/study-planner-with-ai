@@ -1,0 +1,31 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build and cache
+dist/
+build/
+.cache/
+.next/
+out/
+coverage/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Optional lock files (if you don’t want to commit them)
+# package-lock.json
+# yarn.lock

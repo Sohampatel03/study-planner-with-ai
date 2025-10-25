@@ -1,7 +1,7 @@
+const { CohereClient } = require("cohere-ai");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const cohere = require("cohere-ai");
 const Task = require("./modules/TaskSchema");
 const Progress = require("./modules/TaskProgressSchema");
 const User = require("./modules/UserSchema");
@@ -21,7 +21,9 @@ app.use(
 );
 
 // Initialize Cohere API
-cohere.init(process.env.COHERE_API_KEY);
+const cohere = new CohereClient({
+  token: process.env.COHERE_API_KEY,
+});
 console.log("Cohere API Key Loaded");
 
 // Connect to MongoDB
