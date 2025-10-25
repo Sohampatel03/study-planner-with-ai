@@ -6,7 +6,7 @@ const Task = require("./modules/TaskSchema");
 const Progress = require("./modules/TaskProgressSchema");
 const User = require("./modules/UserSchema");
 const bcrypt = require("bcryptjs");
-import { GoogleGenerativeAI } from "@google/generative-ai";
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
