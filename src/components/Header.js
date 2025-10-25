@@ -10,7 +10,7 @@ const Header = () => {
     try {
       const response = await fetch("http://localhost:5000/logout", {
         method: "POST",
-        credentials: "include",
+        //  credentials:true,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,

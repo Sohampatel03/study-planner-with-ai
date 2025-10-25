@@ -26,7 +26,7 @@ console.log("Cohere API Key Loaded");
 
 // Connect to MongoDB
 mongoose
-  .connect("mongodb://127.0.0.1:27017/studyplanner", { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error("DB Connection Error:", err));
 
