@@ -11,7 +11,7 @@ function Calendar() {
     const fetchTasks = async () => {
         try {
           console.log("Token from localStorage calender:", localStorage.getItem("token"));
-          const response = await fetch("http://localhost:5000/tasks", {
+          const response = await fetch("https://study-planner-with-ai-1.onrender.com/tasks", {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

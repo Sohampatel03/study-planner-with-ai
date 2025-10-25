@@ -5,7 +5,7 @@ const GptSearchBar = () => {
 
   const handleGptSearchClick = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/ai-suggest", {
+      const res = await fetch("https://study-planner-with-ai-1.onrender.com/api/ai-suggest", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

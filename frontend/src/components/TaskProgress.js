@@ -6,7 +6,7 @@ const TaskProgress = () => {
 
   useEffect(() => {
     const fetchProgress = async () => {
-      const response = await fetch("http://localhost:5000/progress");
+      const response = await fetch("https://study-planner-with-ai-1.onrender.com/progress");
       const data = await response.json();
       setRemaining(data.remaining || 0);
       setCompleted(data.completed || 0);

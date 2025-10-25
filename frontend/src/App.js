@@ -23,7 +23,7 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      axios.get("http://localhost:5000/user",  {
+      axios.get("https://study-planner-with-ai-1.onrender.com/user",  {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,  // Ensure "Bearer " is included
         },

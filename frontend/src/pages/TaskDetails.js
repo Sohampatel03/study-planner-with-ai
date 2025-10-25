@@ -9,7 +9,7 @@ function TaskDetails() {
   const [formData, setFormData] = useState({ title: "", description: "", date: "" });
 
   useEffect(() => {
-  fetch(`http://localhost:5000/tasks/${id}`, {
+  fetch(`https://study-planner-with-ai-1.onrender.com/tasks/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

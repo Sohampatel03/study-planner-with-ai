@@ -21,7 +21,7 @@ function AiSuggestedTask() {
   
     console.log("Updated Task Data before sending:", updatedTask);
   
-    const response = await fetch("http://localhost:5000/save-task", {
+    const response = await fetch("https://study-planner-with-ai-1.onrender.com/save-task", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

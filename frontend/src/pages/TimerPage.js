@@ -28,7 +28,7 @@ function TimerPage() {
   useEffect(() => {
     const fetchTaskTime = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/tasks/${id}`, {
+        const response = await fetch(`https://study-planner-with-ai-1.onrender.com/tasks/${id}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
