@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "study-planner-with-ai.vercel.app", // Allow frontend origin
+    origin: "https://study-planner-with-ai.vercel.app", // Allow frontend origin
     credentials: true, // Allow cookies and authentication headers
   })
 );
