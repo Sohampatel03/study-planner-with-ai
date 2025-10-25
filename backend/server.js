@@ -163,10 +163,7 @@ Ensure all recommendations are high-quality and relevant to the topic.`;
 
     const response = await cohere.chat({
       model: "command",
-      messages: [
-        { role: "system", content: "You are an AI task planner." },
-        { role: "user", content: prompt },
-      ],
+      messages: prompt,
       max_tokens: 150,
       temperature: 0.7,
     });
