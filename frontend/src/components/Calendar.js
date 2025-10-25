@@ -61,21 +61,21 @@ function Calendar() {
   );
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-3/4 mx-auto mt-5">
-      <div className="flex justify-between items-center mb-4">
-        <button onClick={goToPreviousMonth} className="bg-gray-600 text-white px-3 py-1 rounded-md hover:bg-gray-500">
+    <div className="bg-gray-800 p-3 sm:p-4 md:p-6 rounded-lg shadow-lg w-full mx-auto mt-2 sm:mt-3 md:mt-5">
+      <div className="flex justify-between items-center mb-3 sm:mb-4">
+        <button onClick={goToPreviousMonth} className="bg-gray-600 text-white px-2 sm:px-3 py-1 rounded-md hover:bg-gray-500 text-sm sm:text-base">
           ←
         </button>
-        <h2 className="text-lg font-bold text-white">
+        <h2 className="text-sm sm:text-base md:text-lg font-bold text-white">
           {months[currentMonth]} {currentYear}
         </h2>
-        <button onClick={goToNextMonth} className="bg-gray-600 text-white px-3 py-1 rounded-md hover:bg-gray-500">
+        <button onClick={goToNextMonth} className="bg-gray-600 text-white px-2 sm:px-3 py-1 rounded-md hover:bg-gray-500 text-sm sm:text-base">
           →
         </button>
       </div>
 
-      <div className="bg-gray-700 p-4 rounded-md">
-        <div className="grid grid-cols-7 gap-2">
+      <div className="bg-gray-700 p-2 sm:p-3 md:p-4 rounded-md">
+        <div className="grid grid-cols-7 gap-1 sm:gap-2">
           {[...Array(getDaysInMonth(currentMonth, currentYear))].map((_, dayIndex) => {
             const day = dayIndex + 1;
             const dateKey = new Date(currentYear, currentMonth, day).toLocaleDateString("en-CA");
@@ -84,7 +84,7 @@ function Calendar() {
               <button
                 key={day}
                 onClick={() => handleDateClick(day)}
-                className={`p-2 rounded-md text-sm transition-colors ${
+                className={`p-1 sm:p-2 rounded-md text-xs sm:text-sm transition-colors ${
                   selectedDate === dateKey
                     ? "bg-blue-500" // Selected date
                     : taskDates.has(dateKey)
@@ -99,11 +99,11 @@ function Calendar() {
         </div>
       </div>
 
-      <div className="mt-6 bg-gray-700 p-4 rounded-md">
-        <h3 className="text-white mb-2">
+      <div className="mt-3 sm:mt-4 md:mt-6 bg-gray-700 p-2 sm:p-3 md:p-4 rounded-md">
+        <h3 className="text-white mb-2 text-sm sm:text-base">
           Tasks for {selectedDate ? selectedDate : "Select a date"}
         </h3>
-        <ul className="text-white">
+        <ul className="text-white space-y-1 sm:space-y-2">
           {selectedDate &&
           tasks.filter((task) => {
             const taskDate = new Date(task.date).toISOString().split("T")[0];
@@ -115,14 +115,14 @@ function Calendar() {
                 return taskDate === selectedDate;
               })
               .map((task) => (
-                <li key={task._id} className="bg-gray-600 p-2 rounded-md mb-2">
-                  <Link to={`/task/${task._id}`} className="text-blue-400 hover:underline">
+                <li key={task._id} className="bg-gray-600 p-2 rounded-md">
+                  <Link to={`/task/${task._id}`} className="text-blue-400 hover:underline text-xs sm:text-sm">
                     <strong>{task.title}</strong>
                   </Link>
                 </li>
               ))
           ) : (
-            <p className="text-gray-400">No tasks for this date.</p>
+            <p className="text-gray-400 text-xs sm:text-sm">No tasks for this date.</p>
           )}
         </ul>
       </div>

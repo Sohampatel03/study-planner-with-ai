@@ -99,19 +99,19 @@ function TimerPage() {
   };
 
   return (
-    <div className="bg-gray-900 min-h-screen flex items-center justify-center">
-      <div className="bg-white/10 backdrop-blur-md shadow-lg p-8 rounded-2xl w-full max-w-md text-center border border-white/20 mt-[-50px]">
+    <div className="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+      <div className="bg-white/10 backdrop-blur-md shadow-lg p-4 sm:p-6 md:p-8 rounded-2xl w-full max-w-sm sm:max-w-md text-center border border-white/20">
         
         {/* Task Title */}
-        <h1 className="text-2xl font-bold text-white mb-2">{taskTitle || "Task Timer"}</h1>
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">{taskTitle || "Task Timer"}</h1>
 
         {/* Task Duration (if available) */}
         {taskDuration && (
-          <h2 className="text-lg text-gray-300 mb-4">⏳ Duration: {taskDuration} hrs</h2>
+          <h2 className="text-sm sm:text-base md:text-lg text-gray-300 mb-3 sm:mb-4">⏳ Duration: {taskDuration} hrs</h2>
         )}
 
         {/* Timer Display */}
-        <div className="text-5xl font-bold text-white bg-gray-800 py-4 px-6 rounded-lg shadow-md mb-6">
+        <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-white bg-gray-800 py-3 sm:py-4 px-4 sm:px-6 rounded-lg shadow-md mb-4 sm:mb-6">
           {formatTime(seconds)}
         </div>
 
@@ -125,7 +125,7 @@ function TimerPage() {
                 setIsRunning(true);
               }
             }}
-            className={`w-24 h-24 rounded-full text-xl font-bold transition-all flex items-center justify-center
+            className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full text-sm sm:text-base md:text-xl font-bold transition-all flex items-center justify-center
               ${isRunning ? "bg-yellow-500 hover:bg-yellow-400" : "bg-green-500 hover:bg-green-400"} 
               shadow-lg text-white`}
           >
@@ -136,7 +136,7 @@ function TimerPage() {
         {/* Back Button */}
         <button
           onClick={handleBack}
-          className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg mt-6 w-full shadow-lg transition-all"
+          className="bg-red-500 hover:bg-red-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg mt-4 sm:mt-6 w-full shadow-lg transition-all text-sm sm:text-base"
         >
           Back
         </button>

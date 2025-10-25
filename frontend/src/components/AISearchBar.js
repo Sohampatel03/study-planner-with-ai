@@ -27,13 +27,13 @@ const GptSearchBar = () => {
   };
 
   return (
-    <div className="pt-[50%] md:pt-[10%] flex flex-col items-center">
-      <form className="w-full md:w-1/2 bg-black grid grid-cols-12" onSubmit={(e) => e.preventDefault()}>
-        <button className="py-2 px-4 bg-red-700 text-white rounded-lg col-span-3 m-4" onClick={handleGptSearchClick}>
+    <div className="pt-[20%] sm:pt-[15%] md:pt-[10%] flex flex-col items-center px-4">
+      <form className="w-full sm:w-3/4 md:w-1/2 bg-black grid grid-cols-12" onSubmit={(e) => e.preventDefault()}>
+        <button className="py-2 px-2 sm:px-4 bg-red-700 text-white rounded-lg col-span-3 m-2 sm:m-4 text-xs sm:text-sm md:text-base" onClick={handleGptSearchClick}>
           Get AI Response
         </button>
       </form>
-      {responseText && <p className="text-white mt-4">{responseText}</p>}
+      {responseText && <p className="text-white mt-4 text-sm sm:text-base px-4">{responseText}</p>}
     </div>
   );
 };

@@ -58,50 +58,50 @@ function AiSuggestedTask() {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-gray-800 mt-11 shadow-lg rounded-lg text-white">
-      <h2 className="text-xl font-semibold text-center text-white-800 mb-4">AI-Suggested Task</h2>
+    <div className="max-w-sm sm:max-w-md lg:max-w-lg mx-auto p-4 sm:p-6 bg-gray-800 mt-8 sm:mt-11 shadow-lg rounded-lg text-white">
+      <h2 className="text-lg sm:text-xl font-semibold text-center mb-4">AI-Suggested Task</h2>
 
-      <div className="mb-4">
-        <label className="block text-white-700 mb-1">Title</label>
+      <div className="mb-3 sm:mb-4">
+        <label className="block text-white mb-1 text-sm sm:text-base">Title</label>
         <input
           type="text"
           value={task.title}
           onChange={(e) => setTask({ ...task, title: e.target.value })}
-          className="w-full p-2 border rounded-md text-black"
+          className="w-full p-2 sm:p-3 border rounded-md text-black bg-gray-100 text-sm sm:text-base"
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block text-white-700 mb-1">Improved Description</label>
+      <div className="mb-3 sm:mb-4">
+        <label className="block text-white mb-1 text-sm sm:text-base">Improved Description</label>
         <textarea
           value={task.improvedDescription}
           onChange={(e) => setTask({ ...task, improvedDescription: e.target.value })}
-          className="w-full p-2 border rounded-md h-24 h-[150px] text-black"
+          className="w-full p-2 sm:p-3 border rounded-md h-24 sm:h-[150px] text-black bg-gray-100 text-sm sm:text-base"
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block text-white-700 mb-1">Suggested Duration (mins)</label>
+      <div className="mb-3 sm:mb-4">
+        <label className="block text-white mb-1 text-sm sm:text-base">Suggested Duration (mins)</label>
         <input
           type="number"
           value={task.suggestedDuration}
           onChange={(e) => setTask({ ...task, suggestedDuration: e.target.value })}
-          className="w-full p-2 border rounded-md text-black"
+          className="w-full p-2 sm:p-3 border rounded-md text-black bg-gray-100 text-sm sm:text-base"
         />
       </div>
 
       {/* Accept and Reject Buttons */}
-      <div className="flex justify-between">
+      <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0">
         <button 
           onClick={handleAccept} 
-          className="w-1/2 bg-green-600 hover:bg-green-800 text-white font-semibold py-2 rounded-md mr-2"
+          className="flex-1 bg-green-600 hover:bg-green-800 text-white font-semibold py-2 sm:py-3 rounded-md text-sm sm:text-base transition-colors"
         >
           Accept & Save
         </button>
 
         <button 
           onClick={handleReject} 
-          className="w-1/2 bg-red-600 hover:bg-red-800 text-white font-semibold py-2 rounded-md ml-2"
+          className="flex-1 bg-red-600 hover:bg-red-800 text-white font-semibold py-2 sm:py-3 rounded-md text-sm sm:text-base transition-colors"
         >
           Reject & Save Original
         </button>

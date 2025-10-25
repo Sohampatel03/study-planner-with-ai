@@ -36,25 +36,25 @@ function TaskList() {
   
   console.log(tasks,"task")
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-[100%] mx-auto mt-5 text-white h[screen]">
-      <h2 className="text-2xl font-bold mb-4">Task List</h2>
+    <div className="bg-gray-800 p-3 sm:p-4 md:p-6 rounded-lg shadow-lg w-full mx-auto mt-2 sm:mt-3 md:mt-5 text-white">
+      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Task List</h2>
       {tasks.length === 0 ? (
-        <p className="text-gray-400">No tasks available.</p>
+        <p className="text-gray-400 text-sm sm:text-base">No tasks available.</p>
       ) : (
-        <ul>
+        <ul className="space-y-2 sm:space-y-3">
           {tasks.map((task) => (
             <li
               key={task._id}
-              className="border border-gray-600 p-4 my-2 rounded-md  transition"
+              className="border border-gray-600 p-3 sm:p-4 rounded-md transition hover:bg-gray-700"
             >
-              <h3 className="text-lg font-semibold text-white-800">Title: {task.title}</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-2">Title: {task.title}</h3>
               {/* <p className="text-white-800">Description: {task.description}</p> */}
-              <p className="text-sm text-yellow-400">
+              <p className="text-xs sm:text-sm text-yellow-400 mb-3">
                 <strong>Status:</strong> {task.status}
               </p>
               <Link
                 to={`/task/${task._id}`}
-                className="mt-2 inline-block bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600"
+                className="inline-block bg-blue-500 text-white px-3 sm:px-4 py-1 sm:py-2 rounded-md hover:bg-blue-600 text-xs sm:text-sm transition-colors"
               >
                 View Details
               </Link>

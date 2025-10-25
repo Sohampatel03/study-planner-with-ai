@@ -42,7 +42,7 @@ function App() {
   return (
     <AuthContext.Provider value={{ user, setUser }}>
     <BrowserRouter>
-       <div className="min-h-screen bg-gray-900 text-white p-6 pt-16">
+       <div className="min-h-screen bg-gray-900 text-white p-2 sm:p-4 md:p-6 pt-12 sm:pt-14 md:pt-16">
         {/* Header Section */}
         <Header onAddTask={handleAddTask} />
         {/* <AISearchBar /> */}
@@ -50,7 +50,7 @@ function App() {
         {/* Main Layout */}
         <Routes>
           <Route path="/" element={user ?
-            <div className="grid grid-cols-3 gap-4 mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4 mt-2 sm:mt-4 md:mt-6">
               <TaskProgress completed={10} remaining={23}/>
               <TaskList />
               <Calendar/> 

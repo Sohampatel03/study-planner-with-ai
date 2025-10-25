@@ -52,37 +52,37 @@ function AddTask() {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-gray-800 mt-11 shadow-lg rounded-lg text-black">
-      <h2 className="text-xl font-semibold text-center text-white mb-4">Add New Task</h2>
+    <div className="max-w-sm sm:max-w-md lg:max-w-lg mx-auto p-4 sm:p-6 bg-gray-800 mt-8 sm:mt-11 shadow-lg rounded-lg text-white">
+      <h2 className="text-lg sm:text-xl font-semibold text-center mb-4">Add New Task</h2>
 
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-white mb-1">Title</label>
+        <div className="mb-3 sm:mb-4">
+          <label className="block text-white mb-1 text-sm sm:text-base">Title</label>
           <input
             type="text"
             placeholder="Enter Task Name"
             value={task.title}
             onChange={(e) => setTask({ ...task, title: e.target.value })}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-2 sm:p-3 border rounded-md bg-gray-700 border-gray-600 text-sm sm:text-base"
             required
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-white mb-1">Description (optional)</label>
+        <div className="mb-3 sm:mb-4">
+          <label className="block text-white mb-1 text-sm sm:text-base">Description (optional)</label>
           <textarea
             value={task.description}
             placeholder="Enter Description Related to Task"
             onChange={(e) => setTask({ ...task, description: e.target.value })}
-            className="w-full p-2 border rounded-md h-24"
+            className="w-full p-2 sm:p-3 border rounded-md h-20 sm:h-24 bg-gray-700 border-gray-600 text-sm sm:text-base"
             required
           />
         </div>
 
         {/* Hours & Minutes Fields */}
-        <div className="mb-4 flex gap-4">
+        <div className="mb-3 sm:mb-4 flex gap-2 sm:gap-4">
           <div className="w-1/2">
-            <label className="block text-white mb-1">Hours</label>
+            <label className="block text-white mb-1 text-sm sm:text-base">Hours</label>
             <input
               type="number"
               min="0"
@@ -90,12 +90,12 @@ function AddTask() {
               value={task.hours}
               placeholder="HH"
               onChange={(e) => setTask({ ...task, hours: e.target.value })}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-2 sm:p-3 border rounded-md bg-gray-700 border-gray-600 text-sm sm:text-base"
             />
           </div>
 
           <div className="w-1/2">
-            <label className="block text-white mb-1">Minutes</label>
+            <label className="block text-white mb-1 text-sm sm:text-base">Minutes</label>
             <input
               type="number"
               min="0"
@@ -103,18 +103,18 @@ function AddTask() {
               value={task.minutes}
               placeholder="MM"
               onChange={(e) => setTask({ ...task, minutes: e.target.value })}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-2 sm:p-3 border rounded-md bg-gray-700 border-gray-600 text-sm sm:text-base"
             />
           </div>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-white mb-1">Task Date</label>
+        <div className="mb-3 sm:mb-4">
+          <label className="block text-white mb-1 text-sm sm:text-base">Task Date</label>
           <input
             type="date"
             value={task.date}
             onChange={(e) => setTask({ ...task, date: e.target.value })}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-2 sm:p-3 border rounded-md bg-gray-700 border-gray-600 text-sm sm:text-base"
             required
           />
         </div>
@@ -122,7 +122,7 @@ function AddTask() {
         {/* Submit Button with Loading Spinner */}
         <button
           type="submit"
-          className={`w-full flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 rounded-md transition-all ${
+          className={`w-full flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 sm:py-3 rounded-md transition-all text-sm sm:text-base ${
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           disabled={loading}
@@ -130,7 +130,7 @@ function AddTask() {
           {loading ? (
             <>
               <svg
-                className="animate-spin h-5 w-5 text-white"
+                className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -149,7 +149,7 @@ function AddTask() {
                   d="M4 12a8 8 0 018-8v8H4z"
                 ></path>
               </svg>
-              Fetching AI Suggestion...
+              <span className="text-xs sm:text-sm">Fetching AI Suggestion...</span>
             </>
           ) : (
             "Get AI Suggestion"
