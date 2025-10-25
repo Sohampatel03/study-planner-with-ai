@@ -167,7 +167,9 @@ Ensure all recommendations are high-quality and relevant to the topic.`;
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Generate the content
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    });
 
     // Extract response text
     const improvedDescription =
