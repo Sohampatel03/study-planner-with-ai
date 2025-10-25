@@ -6,6 +6,7 @@ const Task = require("./modules/TaskSchema");
 const Progress = require("./modules/TaskProgressSchema");
 const User = require("./modules/UserSchema");
 const bcrypt = require("bcryptjs");
+import { GoogleGenerativeAI } from "@google/generative-ai";
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -19,12 +20,13 @@ app.use(
     credentials: true, // Allow cookies and authentication headers
   })
 );
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Initialize Cohere API
-const cohere = new CohereClient({
-  token: process.env.COHERE_API_KEY,
-});
-console.log("Cohere API Key Loaded");
+// const cohere = new CohereClient({
+//   token: process.env.COHERE_API_KEY,
+// });
+// console.log("Cohere API Key Loaded");
 
 // Connect to MongoDB
 mongoose
@@ -161,15 +163,15 @@ Book / Online Course (2 names only):
 Website for Practice (2 names only): 
 Ensure all recommendations are high-quality and relevant to the topic.`;
 
-    const response = await cohere.chat({
-      model: "command",
-      message: prompt,
-      max_tokens: 150,
-      temperature: 0.7,
-    });
+    // Use Gemini 1.5 Flash
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+    // Generate the content
+    const result = await model.generateContent(prompt);
+
+    // Extract response text
     const improvedDescription =
-      response?.choices?.[0]?.message?.content?.trim() || description;
+      result?.response?.text()?.trim() || description;
 
     res.json({
       title,
