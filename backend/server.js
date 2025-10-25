@@ -5,7 +5,6 @@ const cohere = require("cohere-ai");
 const Task = require("./modules/TaskSchema");
 const Progress = require("./modules/TaskProgressSchema");
 const User = require("./modules/UserSchema");
-const { useState } = require("react");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
