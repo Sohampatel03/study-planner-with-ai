@@ -6,7 +6,8 @@ const Task = require("./modules/TaskSchema");
 const Progress = require("./modules/TaskProgressSchema");
 const User = require("./modules/UserSchema");
 const bcrypt = require("bcryptjs");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require("@google/genai");
+// const { GoogleGenerativeAI } = require("@google/generative-ai");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -20,7 +21,8 @@ app.use(
     credentials: true, // Allow cookies and authentication headers
   })
 );
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Initialize Cohere API
 // const cohere = new CohereClient({
@@ -164,16 +166,17 @@ Website for Practice (2 names only):
 Ensure all recommendations are high-quality and relevant to the topic.`;
 
     // Use Gemini 1.5 Flash
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Generate the content
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
     });
 
     // Extract response text
     const improvedDescription =
-      result?.response?.text()?.trim() || description;
+      response.text?.trim() || description;
 
     res.json({
       title,
