@@ -23,7 +23,7 @@ app.use(
     credentials: true,
   })
 );
-app.options("*", cors());
+app.options("/*", cors());
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
