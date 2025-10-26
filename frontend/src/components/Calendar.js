@@ -1,3 +1,6 @@
+// frontend/src/components/Calendar.js
+// FINAL COMPLETE VERSION - COPY THIS ENTIRE FILE
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -6,28 +9,32 @@ function Calendar() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [loading, setLoading] = useState(true);
 
+  // Fetch tasks from API
   useEffect(() => {
     const fetchTasks = async () => {
-        try {
-          console.log("Token from localStorage calender:", localStorage.getItem("token"));
-          const response = await fetch("https://study-planner-with-ai-1.onrender.com/tasks", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          });
-  
-          if (!response.ok) {
-            throw new Error("Failed to fetch tasks");
-          }
-  
-          const data = await response.json();
-          setTasks(data);
-        } catch (error) {
-          console.error("Error fetching tasks:", error);
+      try {
+        setLoading(true);
+        const response = await fetch("https://study-planner-with-ai-1.onrender.com/tasks", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch tasks");
         }
+
+        const data = await response.json();
+        setTasks(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+        setLoading(false);
+      }
     };
     fetchTasks();
   }, []);
@@ -37,94 +44,261 @@ function Calendar() {
     "July", "August", "September", "October", "November", "December"
   ];
 
+  // Get number of days in month
   const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
+  
+  // Get first day of month (0 = Sunday, 1 = Monday, etc.)
+  const getFirstDayOfMonth = (month, year) => new Date(year, month, 1).getDay();
 
+  // Handle date click
   const handleDateClick = (day) => {
-    const selectedFullDate = new Date(currentYear, currentMonth, day)
-      .toLocaleDateString("en-CA"); // Format as YYYY-MM-DD
+    const selectedFullDate = new Date(currentYear, currentMonth, day).toLocaleDateString("en-CA");
     setSelectedDate(selectedFullDate);
   };
 
+  // Navigate to previous month
   const goToPreviousMonth = () => {
-    setCurrentMonth((prevMonth) => (prevMonth === 0 ? 11 : prevMonth - 1));
-    if (currentMonth === 0) setCurrentYear((prevYear) => prevYear - 1);
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(currentYear - 1);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+    }
   };
 
+  // Navigate to next month
   const goToNextMonth = () => {
-    setCurrentMonth((prevMonth) => (prevMonth === 11 ? 0 : prevMonth + 1));
-    if (currentMonth === 11) setCurrentYear((prevYear) => prevYear + 1);
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(currentYear + 1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
   };
 
-  // Create a set of task dates for quick lookup
+  // Go to today
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentMonth(today.getMonth());
+    setCurrentYear(today.getFullYear());
+    setSelectedDate(today.toLocaleDateString("en-CA"));
+  };
+
+  // Create set of dates that have tasks
   const taskDates = new Set(
     tasks.map((task) => new Date(task.date).toISOString().split("T")[0])
   );
 
+  // Get task count for a specific date
+  const getTaskCountForDate = (dateKey) => {
+    return tasks.filter(task => {
+      const taskDate = new Date(task.date).toISOString().split("T")[0];
+      return taskDate === dateKey;
+    }).length;
+  };
+
+  // Check if a day is today
+  const isToday = (day) => {
+    const today = new Date();
+    return day === today.getDate() && 
+           currentMonth === today.getMonth() && 
+           currentYear === today.getFullYear();
+  };
+
+  const daysInMonth = getDaysInMonth(currentMonth, currentYear);
+  const firstDayOfMonth = getFirstDayOfMonth(currentMonth, currentYear);
+  const totalSlots = Math.ceil((daysInMonth + firstDayOfMonth) / 7) * 7;
+
   return (
-    <div className="bg-gray-800 p-3 sm:p-4 md:p-6 rounded-lg shadow-lg w-full mx-auto mt-2 sm:mt-3 md:mt-5">
-      <div className="flex justify-between items-center mb-3 sm:mb-4">
-        <button onClick={goToPreviousMonth} className="bg-gray-600 text-white px-2 sm:px-3 py-1 rounded-md hover:bg-gray-500 text-sm sm:text-base">
-          ←
-        </button>
-        <h2 className="text-sm sm:text-base md:text-lg font-bold text-white">
-          {months[currentMonth]} {currentYear}
-        </h2>
-        <button onClick={goToNextMonth} className="bg-gray-600 text-white px-2 sm:px-3 py-1 rounded-md hover:bg-gray-500 text-sm sm:text-base">
-          →
+    <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-4 sm:p-6 rounded-2xl shadow-2xl border border-gray-700/50 w-full mx-auto mt-5 backdrop-blur-sm">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={goToPreviousMonth}
+            className="p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors flex items-center justify-center"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+          <h2 className="text-xl sm:text-2xl font-bold text-white min-w-[200px] text-center">
+            {months[currentMonth]} {currentYear}
+          </h2>
+          
+          <button
+            onClick={goToNextMonth}
+            className="p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors flex items-center justify-center"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        <button
+          onClick={goToToday}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
+        >
+          <span>📅</span>
+          <span>Today</span>
         </button>
       </div>
 
-      <div className="bg-gray-700 p-2 sm:p-3 md:p-4 rounded-md">
-        <div className="grid grid-cols-7 gap-1 sm:gap-2">
-          {[...Array(getDaysInMonth(currentMonth, currentYear))].map((_, dayIndex) => {
-            const day = dayIndex + 1;
-            const dateKey = new Date(currentYear, currentMonth, day).toLocaleDateString("en-CA");
+      {/* Weekday Headers */}
+      <div className="grid grid-cols-7 gap-2 mb-2">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+          <div key={day} className="text-center text-xs sm:text-sm font-semibold text-gray-400 py-2">
+            {day}
+          </div>
+        ))}
+      </div>
 
-            return (
-              <button
-                key={day}
-                onClick={() => handleDateClick(day)}
-                className={`p-1 sm:p-2 rounded-md text-xs sm:text-sm transition-colors ${
-                  selectedDate === dateKey
-                    ? "bg-blue-500" // Selected date
-                    : taskDates.has(dateKey)
-                    ? "bg-yellow-400" // Highlighted date with tasks
-                    : "bg-gray-600"
-                } text-white hover:bg-blue-400`}
-              >
-                {day}
-              </button>
-            );
-          })}
+      {/* Calendar Grid */}
+      <div className="bg-gray-900/50 p-3 sm:p-4 rounded-xl border border-gray-700/50 mb-6">
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-7 gap-2">
+            {[...Array(totalSlots)].map((_, index) => {
+              const dayNumber = index - firstDayOfMonth + 1;
+              const isValidDay = dayNumber > 0 && dayNumber <= daysInMonth;
+              const dateKey = isValidDay 
+                ? new Date(currentYear, currentMonth, dayNumber).toLocaleDateString("en-CA")
+                : null;
+              const hasTask = isValidDay && taskDates.has(dateKey);
+              const taskCount = isValidDay ? getTaskCountForDate(dateKey) : 0;
+              const isTodayDate = isValidDay && isToday(dayNumber);
+              const isSelected = dateKey === selectedDate;
+
+              return (
+                <button
+                  key={index}
+                  onClick={() => isValidDay && handleDateClick(dayNumber)}
+                  disabled={!isValidDay}
+                  className={`relative aspect-square p-2 rounded-lg text-sm sm:text-base transition-all duration-200 ${
+                    !isValidDay
+                      ? 'invisible'
+                      : isSelected
+                      ? 'bg-blue-600 text-white shadow-lg scale-105 ring-2 ring-blue-400'
+                      : isTodayDate
+                      ? 'bg-purple-600/50 text-white font-bold ring-2 ring-purple-400'
+                      : hasTask
+                      ? 'bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30 border border-yellow-500/50'
+                      : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  {isValidDay && (
+                    <>
+                      <span className="block">{dayNumber}</span>
+                      {taskCount > 0 && (
+                        <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg">
+                          {taskCount}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 mb-6 text-xs sm:text-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-purple-600 rounded border-2 border-purple-400"></div>
+          <span className="text-gray-400">Today</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-yellow-500/20 border border-yellow-500/50 rounded"></div>
+          <span className="text-gray-400">Has Tasks</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-blue-600 rounded"></div>
+          <span className="text-gray-400">Selected</span>
         </div>
       </div>
 
-      <div className="mt-3 sm:mt-4 md:mt-6 bg-gray-700 p-2 sm:p-3 md:p-4 rounded-md">
-        <h3 className="text-white mb-2 text-sm sm:text-base">
-          Tasks for {selectedDate ? selectedDate : "Select a date"}
+      {/* Tasks for Selected Date */}
+      <div className="bg-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-700/50">
+        <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+          <span className="text-xl">📋</span>
+          <span>
+            Tasks for {selectedDate 
+              ? new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { 
+                  month: 'long', 
+                  day: 'numeric',
+                  year: 'numeric'
+                })
+              : 'Select a date'
+            }
+          </span>
         </h3>
-        <ul className="text-white space-y-1 sm:space-y-2">
-          {selectedDate &&
+
+        {selectedDate ? (
           tasks.filter((task) => {
             const taskDate = new Date(task.date).toISOString().split("T")[0];
             return taskDate === selectedDate;
           }).length > 0 ? (
-            tasks
-              .filter((task) => {
-                const taskDate = new Date(task.date).toISOString().split("T")[0];
-                return taskDate === selectedDate;
-              })
-              .map((task) => (
-                <li key={task._id} className="bg-gray-600 p-2 rounded-md">
-                  <Link to={`/task/${task._id}`} className="text-blue-400 hover:underline text-xs sm:text-sm">
-                    <strong>{task.title}</strong>
-                  </Link>
-                </li>
-              ))
+            <ul className="space-y-3">
+              {tasks
+                .filter((task) => {
+                  const taskDate = new Date(task.date).toISOString().split("T")[0];
+                  return taskDate === selectedDate;
+                })
+                .map((task) => (
+                  <li
+                    key={task._id}
+                    className="bg-gray-800 p-4 rounded-lg border border-gray-700 hover:border-blue-500/50 transition-all duration-200 hover:scale-[1.02]"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="text-white font-medium flex-1">{task.title}</h4>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        task.status === 'completed' 
+                          ? 'bg-green-500/20 text-green-400' 
+                          : 'bg-yellow-500/20 text-yellow-400'
+                      }`}>
+                        {task.status || 'pending'}
+                      </span>
+                    </div>
+                    
+                    {task.duration && (
+                      <p className="text-gray-400 text-sm mb-3 flex items-center gap-1">
+                        <span>⏱️</span>
+                        <span>{task.duration} minutes</span>
+                      </p>
+                    )}
+                    
+                    <Link
+                      to={`/task/${task._id}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <span>View Details</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  </li>
+                ))}
+            </ul>
           ) : (
-            <p className="text-gray-400 text-xs sm:text-sm">No tasks for this date.</p>
-          )}
-        </ul>
+            <div className="text-center py-8">
+              <div className="text-5xl mb-3">📭</div>
+              <p className="text-gray-400">No tasks scheduled for this date</p>
+            </div>
+          )
+        ) : (
+          <div className="text-center py-8">
+            <div className="text-5xl mb-3">👆</div>
+            <p className="text-gray-400">Select a date to view tasks</p>
+          </div>
+        )}
       </div>
     </div>
   );
