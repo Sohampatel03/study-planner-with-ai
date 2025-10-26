@@ -19,9 +19,11 @@ app.use(express.json());
 app.use(
   cors({
     origin: "https://study-planner-with-ai.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
+app.options("*", cors());
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
