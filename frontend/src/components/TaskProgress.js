@@ -1,4 +1,6 @@
-// frontend/src/components/TaskProgress.js (Enhanced Version)
+// frontend/src/components/TaskProgress.js
+// UPDATED VERSION FOR NEW BACKEND WITH AUTH
+
 import React, { useEffect, useState } from "react";
 
 const TaskProgress = () => {
@@ -9,7 +11,17 @@ const TaskProgress = () => {
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const response = await fetch("https://study-planner-with-ai-1.onrender.com/progress");
+        // ✅ IMPORTANT: Add Authorization header
+        const response = await fetch("https://study-planner-with-ai-1.onrender.com/progress", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch progress");
+        }
+        
         const data = await response.json();
         setRemaining(data.remaining || 0);
         setCompleted(data.completed || 0);
