@@ -13,10 +13,12 @@ const TaskProgress = () => {
       try {
         // ✅ IMPORTANT: Add Authorization header
         const response = await fetch("https://study-planner-with-ai-1.onrender.com/progress", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
         
         if (!response.ok) {
           throw new Error("Failed to fetch progress");
