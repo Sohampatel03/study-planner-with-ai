@@ -1,4 +1,7 @@
-const { CohereClient } = require("cohere-ai");
+// backend/server.js
+// COMPLETE ENHANCED VERSION WITH PER-USER PROGRESS
+
+const { GoogleGenAI } = require("@google/genai");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -6,8 +9,6 @@ const Task = require("./modules/TaskSchema");
 const Progress = require("./modules/TaskProgressSchema");
 const User = require("./modules/UserSchema");
 const bcrypt = require("bcryptjs");
-const { GoogleGenAI } = require("@google/genai");
-// const { GoogleGenerativeAI } = require("@google/generative-ai");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -17,83 +18,88 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://study-planner-with-ai.vercel.app", // Allow frontend origin
-    credentials: true, // Allow cookies and authentication headers
+    origin: "https://study-planner-with-ai.vercel.app",
+    credentials: true,
   })
 );
-// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// Initialize Cohere API
-// const cohere = new CohereClient({
-//   token: process.env.COHERE_API_KEY,
-// });
-// console.log("Cohere API Key Loaded");
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.error("DB Connection Error:", err));
+  .connect(process.env.MONGODB_URI, { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+  })
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ DB Connection Error:", err));
 
-  const blacklistedTokens = new Set();
+// Blacklisted tokens for logout
+const blacklistedTokens = new Set();
 
-  const authMiddleware = (req, res, next) => {
-    const authHeader = req.header("Authorization");
+// Auth Middleware
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.header("Authorization");
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ message: "Access Denied. No Token Provided." });
-    }
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Access Denied. No Token Provided." });
+  }
 
-    const token = authHeader.split(" ")[1];
+  const token = authHeader.split(" ")[1];
 
-    if (blacklistedTokens.has(token)) {
-        return res.status(401).json({ message: "Token is invalid. Please log in again." });
-    }
+  if (blacklistedTokens.has(token)) {
+    return res.status(401).json({ message: "Token is invalid. Please log in again." });
+  }
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = { id: decoded.id };  // Explicitly set req.user.id
-        next();
-    } catch (error) {
-        res.status(400).json({ message: "Invalid Token" });
-    }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = { id: decoded.id };
+    next();
+  } catch (error) {
+    res.status(400).json({ message: "Invalid Token" });
+  }
 };
 
+// ============================================
+// AUTH ROUTES
+// ============================================
 
-  
-
-// Task Schema
-// const taskSchema = new mongoose.Schema({
-//   title: String,
-//   description: String,
-//   date: { type: Date, required: true }, // Change from String to Date type
-//   duration: Number,
-//   status: { type: String, default: "pending" },
-//   isAiSuggested: { type: Boolean, default: false },
-//   originalTitle: String,
-//   originalDescription: String,
-//   elapsedTime: { type: Number, default: 0 }, // Store accumulated time
-// }, { timestamps: true }); // Adds createdAt & updatedAt fields
-
-// const Task = mongoose.model("Task", taskSchema);
-
-// API Routes
 // Register User
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const userExists = await User.findOne({ email });
 
-    if (userExists) return res.status(400).json({ message: "User already exists" });
+    // Validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ name, email, password: hashedPassword });
-
     await newUser.save();
+
+    // Create initial progress for user
+    const progress = new Progress({ 
+      userId: newUser._id,
+      remaining: 0,
+      completed: 0,
+      totalTasksCreated: 0
+    });
+    await progress.save();
+
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error registering user", error });
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Error registering user", error: error.message });
   }
 });
 
@@ -101,53 +107,103 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
 
-    if (!user) return res.status(400).json({ message: "User not found" });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
 
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { 
+      expiresIn: "24h" // Extended to 24 hours
+    });
+
+    res.json({ 
+      token, 
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email 
+      } 
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error logging in", error });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Error logging in", error: error.message });
   }
 });
-//logout route
-app.post("/logout",(req, res) => {
+
+// Logout Route
+app.post("/logout", authMiddleware, (req, res) => {
   const token = req.header("Authorization").split(" ")[1];
   blacklistedTokens.add(token);
   res.json({ message: "Logged out successfully" });
 });
 
-
-
 // Get User Data (Protected)
 app.get("/user", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching user data", error });
+    console.error("Get user error:", error);
+    res.status(500).json({ message: "Error fetching user data", error: error.message });
   }
 });
+
+// ============================================
+// TASK ROUTES
+// ============================================
+
 // Create a new task
-app.post("/tasks",authMiddleware, async (req, res) => {
+app.post("/tasks", authMiddleware, async (req, res) => {
   try {
-    const task = new Task(req.body);
+    const taskData = {
+      ...req.body,
+      userId: req.user.id
+    };
+
+    const task = new Task(taskData);
     await task.save();
-    let progress = await Progress.findOneAndUpdate();
+
+    // Update user's progress - increment remaining and totalTasksCreated
+    let progress = await Progress.findOne({ userId: req.user.id });
+    
     if (!progress) {
-        progress = new Progress({ remaining: 1, completed: 0 });
+      progress = new Progress({ 
+        userId: req.user.id,
+        remaining: 1,
+        completed: 0,
+        totalTasksCreated: 1
+      });
     } else {
-        progress.remaining += 1;
+      progress.remaining += 1;
+      progress.totalTasksCreated += 1;
     }
+    
     await progress.save();
-    res.status(201).send(task);
+
+    res.status(201).json({ 
+      message: "Task created successfully", 
+      task 
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error creating task", error });
+    console.error("Create task error:", error);
+    res.status(500).json({ message: "Error creating task", error: error.message });
   }
 });
 
@@ -165,18 +221,12 @@ Book / Online Course (2 names only):
 Website for Practice (2 names only): 
 Ensure all recommendations are high-quality and relevant to the topic.`;
 
-    // Use Gemini 1.5 Flash
-    // const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    // Generate the content
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.0-flash-exp",
       contents: prompt,
     });
 
-    // Extract response text
-    const improvedDescription =
-      response.text?.trim() || description;
+    const improvedDescription = response.text?.trim() || description;
 
     res.json({
       title,
@@ -186,19 +236,24 @@ Ensure all recommendations are high-quality and relevant to the topic.`;
       suggestedDuration: duration,
     });
   } catch (error) {
-    console.error("Error fetching AI suggestion:", error);
-    res.status(500).json({ message: "Error fetching AI suggestion", error });
+    console.error("AI suggestion error:", error);
+    res.status(500).json({ message: "Error fetching AI suggestion", error: error.message });
   }
 });
 
-
-// Save a task
-app.post("/save-task",authMiddleware, async (req, res) => {
+// Save a task (after AI suggestion)
+app.post("/save-task", authMiddleware, async (req, res) => {
   try {
-    const { title, description, date, duration, isAiSuggested, originalTitle, originalDescription} = req.body;
-    // const{user} = req.user.id;
-    // console.log(user,"iserid");
-    console.log(req.body, "routte date");
+    const { 
+      title, 
+      description, 
+      date, 
+      duration, 
+      category,
+      isAiSuggested, 
+      originalTitle, 
+      originalDescription 
+    } = req.body;
 
     const task = new Task({
       userId: req.user.id,
@@ -206,114 +261,263 @@ app.post("/save-task",authMiddleware, async (req, res) => {
       description,
       date,
       duration,
+      category,
       isAiSuggested,
       originalTitle,
       originalDescription,
     });
-    let progress = await Progress.findOneAndUpdate(
-      {}, 
-      { $inc: { remaining: 1 } },  // Increment `remaining` by 1
-      { new: true, upsert: true }  // Return updated document, create if not exists
-    );
-
-    console.log(progress,"dfgh");
 
     await task.save();
+
+    // Update user's progress
+    let progress = await Progress.findOne({ userId: req.user.id });
+    
+    if (!progress) {
+      progress = new Progress({ 
+        userId: req.user.id,
+        remaining: 1,
+        completed: 0,
+        totalTasksCreated: 1
+      });
+    } else {
+      progress.remaining += 1;
+      progress.totalTasksCreated += 1;
+    }
+    
+    await progress.save();
+
     res.status(201).json({ message: "Task saved successfully!", task });
   } catch (error) {
-    res.status(500).json({ message: "Error saving task", error });
+    console.error("Save task error:", error);
+    res.status(500).json({ message: "Error saving task", error: error.message });
   }
 });
 
-// Get all tasks
-app.get("/tasks",authMiddleware, async (req, res) => {
+// Get all tasks for logged-in user
+app.get("/tasks", authMiddleware, async (req, res) => {
   try {
-    console.log(req.user.id , "from server id")
-    const tasks = await Task.find({ userId: req.user.id }).sort({ createdAt: -1 }); // Sort by newest tasks first
+    const { status, startDate, endDate } = req.query;
+    
+    let query = { userId: req.user.id };
+    
+    // Filter by status if provided
+    if (status) {
+      query.status = status;
+    }
+    
+    // Filter by date range if provided
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+    
+    const tasks = await Task.find(query).sort({ date: 1, createdAt: -1 });
     res.json(tasks);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching tasks", error });
+    console.error("Get tasks error:", error);
+    res.status(500).json({ message: "Error fetching tasks", error: error.message });
   }
 });
 
 // Get a single task by ID
-app.get("/tasks/:id",authMiddleware, async (req, res) => {
+app.get("/tasks/:id", authMiddleware, async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id // Ensure user owns this task
+    });
+    
     if (!task) {
       return res.status(404).json({ error: "Task not found" });
     }
+    
     res.json(task);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching task" });
+    console.error("Get task error:", error);
+    res.status(500).json({ error: "Error fetching task", message: error.message });
   }
 });
 
-
 // Update a task
-app.put("/tasks/:id",authMiddleware, async (req, res) => {
+app.put("/tasks/:id", authMiddleware, async (req, res) => {
   try {
-    const { elapsedTime, ...updateFields } = req.body;
-    const task = await Task.findById(req.params.id);
-    const updatedTask = await Task.findByIdAndUpdate(
-      req.params.id,
-      { ...updateFields, ...(elapsedTime !== undefined ? { elapsedTime } : {}) },
-      { new: true }
-    );
-
-    if (!updatedTask) {
+    const { elapsedTime, status, ...updateFields } = req.body;
+    
+    const task = await Task.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
+    
+    if (!task) {
       return res.status(404).json({ error: "Task not found" });
     }
 
-    // Check if elapsedTime matches duration
-    if (elapsedTime >= task.duration) {
-      let progress = await Progress.findOne();
-      if (progress) {
-        progress.completed += 1;
-        if (progress.remaining > 0) {
-          progress.remaining -= 1;
-        }
-        await progress.save();
-      }
+    const wasCompleted = task.status === 'completed';
+    
+    // Update task
+    const updatedTask = await Task.findByIdAndUpdate(
+      req.params.id,
+      { 
+        ...updateFields, 
+        ...(elapsedTime !== undefined ? { elapsedTime } : {}),
+        ...(status ? { status } : {})
+      },
+      { new: true }
+    );
+
+    // Get user's progress
+    let progress = await Progress.findOne({ userId: req.user.id });
+    
+    if (!progress) {
+      progress = new Progress({ userId: req.user.id });
     }
+
+    // Check if task is now completed and wasn't before
+    if (status === 'completed' && !wasCompleted) {
+      progress.completed += 1;
+      if (progress.remaining > 0) {
+        progress.remaining -= 1;
+      }
+      await progress.updateStreak(); // Update streak
+    }
+    
+    // Check if task was completed but now isn't
+    if (wasCompleted && status && status !== 'completed') {
+      if (progress.completed > 0) {
+        progress.completed -= 1;
+      }
+      progress.remaining += 1;
+    }
+
+    // Add elapsed time to total study time
+    if (elapsedTime !== undefined && elapsedTime > task.elapsedTime) {
+      progress.totalStudyTime += (elapsedTime - task.elapsedTime);
+    }
+
+    await progress.save();
 
     res.json(updatedTask);
   } catch (error) {
-    res.status(500).json({ error: "Error updating task" });
+    console.error("Update task error:", error);
+    res.status(500).json({ error: "Error updating task", message: error.message });
   }
 });
 
-
-
 // Delete a task
-app.delete("/tasks/:id",authMiddleware, async (req, res) => {
+app.delete("/tasks/:id", authMiddleware, async (req, res) => {
   try {
-    const task = await Task.findByIdAndDelete(req.params.id);
-    if (!task) return res.status(404).json({ message: "Task not found" });
-    let progress = await Progress.findOne();
-        if (progress && progress.remaining > 0) {
-            progress.remaining -= 1;
-            await progress.save();
-        }
+    const task = await Task.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
+    
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    await Task.findByIdAndDelete(req.params.id);
+
+    // Update user's progress
+    let progress = await Progress.findOne({ userId: req.user.id });
+    
+    if (progress) {
+      if (task.status === 'completed' && progress.completed > 0) {
+        progress.completed -= 1;
+      } else if (progress.remaining > 0) {
+        progress.remaining -= 1;
+      }
+      
+      if (progress.totalTasksCreated > 0) {
+        progress.totalTasksCreated -= 1;
+      }
+      
+      await progress.save();
+    }
 
     res.json({ message: "Task deleted successfully!" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting task", error });
+    console.error("Delete task error:", error);
+    res.status(500).json({ message: "Error deleting task", error: error.message });
   }
 });
 
-app.get("/progress", async (req, res) => {
+// ============================================
+// PROGRESS ROUTES
+// ============================================
+
+// Get progress for logged-in user
+app.get("/progress", authMiddleware, async (req, res) => {
   try {
-      const progress = await Progress.findOne();
-      res.json(progress || { remaining: 0, completed: 0 });
+    let progress = await Progress.findOne({ userId: req.user.id });
+    
+    if (!progress) {
+      progress = new Progress({ 
+        userId: req.user.id,
+        remaining: 0,
+        completed: 0,
+        totalTasksCreated: 0
+      });
+      await progress.save();
+    }
+    
+    res.json({
+      remaining: progress.remaining,
+      completed: progress.completed,
+      totalTasksCreated: progress.totalTasksCreated,
+      totalStudyTime: progress.totalStudyTime,
+      streak: progress.streak,
+      completionRate: progress.getCompletionRate()
+    });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Error fetching progress" });
+    console.error("Get progress error:", error);
+    res.status(500).json({ error: "Error fetching progress", message: error.message });
   }
 });
 
+// Get user statistics
+app.get("/stats", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get progress
+    const progress = await Progress.findOne({ userId });
+    
+    // Get tasks statistics
+    const totalTasks = await Task.countDocuments({ userId });
+    const completedTasks = await Task.countDocuments({ userId, status: 'completed' });
+    const pendingTasks = await Task.countDocuments({ userId, status: 'pending' });
+    const inProgressTasks = await Task.countDocuments({ userId, status: 'in progress' });
+    
+    // Get tasks by category
+    const tasksByCategory = await Task.aggregate([
+      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $group: { _id: '$category', count: { $sum: 1 } } }
+    ]);
+    
+    res.json({
+      progress: progress || { remaining: 0, completed: 0, streak: 0 },
+      tasks: {
+        total: totalTasks,
+        completed: completedTasks,
+        pending: pendingTasks,
+        inProgress: inProgressTasks
+      },
+      categories: tasksByCategory
+    });
+  } catch (error) {
+    console.error("Get stats error:", error);
+    res.status(500).json({ error: "Error fetching statistics", message: error.message });
+  }
+});
 
+// ============================================
+// SERVER
+// ============================================
 
-// Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
