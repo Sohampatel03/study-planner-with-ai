@@ -36,7 +36,6 @@ function AddTask() {
       description: task.description,
       duration: totalMinutes,
       date: task.date,
-      category: task.category
     };
 
     try {
