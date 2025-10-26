@@ -27,44 +27,51 @@ function AddTask() {
   ];
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    const totalMinutes = parseInt(task.hours || 0) * 60 + parseInt(task.minutes || 0);
-    const formattedTask = {
-      title: task.title,
-      description: task.description,
-      duration: totalMinutes,
-      date: task.date,
-    };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 40000);
 
-    try {
-      const response = await fetch("https://study-planner-with-ai-1.onrender.com/ai-suggest", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(formattedTask),
-        signal: controller.signal,
+  const totalMinutes = parseInt(task.hours || 0) * 60 + parseInt(task.minutes || 0);
+  const formattedTask = {
+    title: task.title,
+    description: task.description,
+    duration: totalMinutes,
+    date: task.date,
+  };
+
+  try {
+    const response = await fetch("https://study-planner-with-ai-1.onrender.com/ai-suggest", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(formattedTask),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (response.ok) {
+      const aiSuggestedTask = await response.json();
+      navigate("/ai-suggested-task", {
+        state: { originalTask: formattedTask, aiTask: aiSuggestedTask },
       });
-      clearTimeout(timeout);
-
-      if (response.ok) {
-        const aiSuggestedTask = await response.json();
-        navigate("/ai-suggested-task", {
-          state: { originalTask: formattedTask, aiTask: aiSuggestedTask },
-        });
-      } else {
-        alert("Error fetching AI suggestions.");
-      }
-    } catch (error) {
+    } else {
+      alert("Error fetching AI suggestions.");
+    }
+  } catch (error) {
+    if (error.name === "AbortError") {
+      console.warn("⏱️ Request timed out after 40 seconds");
+    } else {
       console.error("Error:", error);
       alert("Failed to fetch AI suggestion.");
-    } finally {
-      setLoading(false);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-900 py-8 px-4 pt-20">
