@@ -1,50 +1,127 @@
-# Study Planner with AI
+Study Planner with AI
 
-## Overview
+Study Planner with AI is a smart study management web application designed to help students plan tasks, track progress, schedule study sessions, and enhance learning with AI-powered study recommendations. Each user has their own private set of tasks and data.
 
-Study Planner with AI is a task management web application that helps users organize their study schedules efficiently. It features task tracking, a progress dashboard, a calendar for scheduling, and AI-based study recommendations.
+[🔗 Live Demo](https://study-planner-with-ai.vercel.app/)
 
-## Features
+View Live Demo
 
-- **Task Management**: Add, edit, and delete study tasks.
-- **Progress Tracking**: View completed and pending tasks with visual indicators.
-- **Calendar Integration**: Schedule tasks and track deadlines.
-- **AI-Powered Recommendations**: Get personalized study suggestions.
-- **User Authentication**: Secure login and logout functionality.
+✨ Features
+Feature	Description
+User Authentication	Secure signup and login with JWT.
+Task Management	Add, edit, delete tasks with name, description, date & time duration.
+AI-Powered Suggestions	Gemini AI suggests improved descriptions + learning resources.
+Progress Tracking	Timer-based task completion updates dynamic progress ring.
+Calendar View	Highlights task schedule to visualize upcoming study sessions.
+Task Detail Timer	Start study timer; updates remaining and completed progress automatically.
+User Data Isolation	Each user sees only their own tasks and study progress.
+🔄 Application Workflow
 
----
+User Signup / Signin
 
-## Folder Structure
+Users create an account or log in securely using JWT authentication.
 
-The project is divided into two main parts: `frontend` (React) and `backend` (Node.js with Express).
+Task Creation
 
+Add a new task with:
 
+Task Name
 
----
+Task Description
 
-## 🚀 Setup Instructions
+Task Date
 
-### 1️⃣ Frontend Setup
+Target Study Time (Duration)
 
-```sh
+AI Enhancement (Gemini AI)
+
+Based on Task Name, AI generates:
+
+Improved Task Description
+
+Study Tips & Learning Resources (videos, articles, notes)
+
+Users can:
+
+✅ Accept AI Recommendation
+
+❌ Keep Original Description
+
+Task Detail Page & Timer
+
+Start a study timer for each task.
+
+When time completes:
+
+Progress circle updates dynamically.
+
+Completed vs Remaining study time is visually highlighted.
+
+Calendar Tracking
+
+Calendar highlights scheduled task dates.
+
+Clicking a date shows tasks for that day.
+
+🧠 Simplified Flow
+Signup/Login → Create Task → AI Suggests Better Description →
+Accept/Reject AI → Start Timer → Progress Updates → Calendar Highlights Tasks
+
+🗂️ Folder Structure
+Study-Planner-AI/
+│
+├── frontend/        # React.js + Tailwind CSS (Create React App)
+└── backend/         # Node.js + Express + MongoDB + JWT
+
+🛠️ Tech Stack
+Frontend
+
+React.js (Create React App)
+
+Tailwind CSS
+
+Backend
+
+Node.js
+
+Express.js
+
+Mongoose (MongoDB ORM)
+
+JWT Authentication
+
+Gemini AI API Integration
+
+Database
+
+MongoDB Atlas (Cloud)
+
+🚀 Local Development Setup
+Clone Repository
+git clone https://github.com/yourusername/study-planner-ai.git
+cd study-planner-ai
+
+Frontend Setup
 cd frontend
 npm install
 npm start
 
-
+Backend Setup
 cd backend
-npm i --global nodemon
+npm install
+npm install --global nodemon
 nodemon server.js
 
-🛠️ Technologies Used
-Frontend:
-React.js
-Tailwind CSS
-Vite
-Backend:
-Node.js
-Express.js
-MongoDB (Mongoose)
-JWT Authentication
+Configure Environment Variables
+
+Create .env file inside backend/:
+
+MONGO_URI = your_mongodb_atlas_url
+JWT_SECRET = your_secret_key
+GEMINI_API_KEY = your_gemini_api_key
+PORT = 5000
+
 🤝 Contributing
-Feel free to submit issues or create pull requests. Contributions are always welcome!
+
+Contributions are welcome!
+Open an issue or submit a pull request to improve the project.
